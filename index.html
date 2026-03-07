@@ -54,7 +54,7 @@
       gap: 6px;
       font-size: 0.9rem;
     }
-    input, button, textarea {
+    input, button, textarea, select {
       background: #0b1220;
       color: var(--text);
       border: 1px solid #334155;
@@ -147,6 +147,24 @@
       <button id="sendCustomBtn">Send Custom</button>
       <button id="clearLogBtn" class="warn">Clear Log</button>
     </div>
+    <hr style="border-color:#334155; margin:16px 0;" />
+    <h2 style="margin:0; font-size:1.05rem;">Local Problem Test</h2>
+    <p>Loader lokale testproblemer fra <code>problems.sample.json</code>.</p>
+    <div class="actions">
+      <button id="loadProblemsBtn">Load Problems</button>
+      <button id="sendProblemBtn">Show Problem LEDs</button>
+    </div>
+    <label style="margin-top: 10px;">
+      Problem
+      <select id="problemSelect">
+        <option value="">Ingen problemer loaded endnu</option>
+      </select>
+    </label>
+    <div id="problemMeta" style="margin-top:8px; color:#9ca3af; font-size:0.92rem;">Vælg et problem for detaljer.</div>
+    <div class="actions">
+      <button id="topProblemBtn" class="primary">Top Problem (LED show)</button>
+      <button id="copyPayloadBtn">Copy LED Payload</button>
+    </div>
     <div id="status">Ikke forbundet.</div>
     <pre id="log"></pre>
   </div>
@@ -156,6 +174,8 @@
     const charUuidInput = document.getElementById("charUuid");
     const scanAllInput = document.getElementById("scanAll");
     const customCommandInput = document.getElementById("customCommand");
+    const problemSelect = document.getElementById("problemSelect");
+    const problemMeta = document.getElementById("problemMeta");
     const statusEl = document.getElementById("status");
     const logEl = document.getElementById("log");
 
@@ -166,10 +186,15 @@
     const pulseBtn = document.getElementById("pulseBtn");
     const sendCustomBtn = document.getElementById("sendCustomBtn");
     const clearLogBtn = document.getElementById("clearLogBtn");
+    const loadProblemsBtn = document.getElementById("loadProblemsBtn");
+    const sendProblemBtn = document.getElementById("sendProblemBtn");
+    const topProblemBtn = document.getElementById("topProblemBtn");
+    const copyPayloadBtn = document.getElementById("copyPayloadBtn");
 
     let device = null;
     let server = null;
     let characteristic = null;
+    let problems = [];
     const LOG_MAX_LINES = 120;
 
     function now() {
@@ -256,6 +281,50 @@
       log(`Sendte: ${JSON.stringify(command)}`, "ok");
     }
 
+    function getSelectedProblem() {
+      const problemId = problemSelect.value;
+      return problems.find((p) => p.id === problemId) || null;
+    }
+
+    function ledPayloadForProblem(problem, mode = "SHOW") {
+      return `LED:${mode}:PROBLEM:${problem.id}`;
+    }
+
+    function renderProblemMeta() {
+      const p = getSelectedProblem();
+      if (!p) {
+        problemMeta.textContent = "Vælg et problem for detaljer.";
+        return;
+      }
+      problemMeta.textContent =
+        `${p.name} | ${p.grade} | greb: ${p.holdCount} | setter: ${p.setter} | benchmark: ${p.isBenchmark ? "ja" : "nej"}`;
+    }
+
+    async function loadProblems() {
+      const res = await fetch("./problems.sample.json", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`Kunne ikke loade problems.sample.json (${res.status})`);
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("problems.sample.json skal være en array.");
+      }
+      problems = data;
+      problemSelect.innerHTML = "";
+      const first = document.createElement("option");
+      first.value = "";
+      first.textContent = "Vælg problem";
+      problemSelect.appendChild(first);
+      for (const p of problems) {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.textContent = `${p.name} (${p.grade})`;
+        problemSelect.appendChild(option);
+      }
+      log(`Loaded ${problems.length} lokale problemer.`, "ok");
+      renderProblemMeta();
+    }
+
     connectBtn.addEventListener("click", async () => {
       try {
         await connect();
@@ -308,6 +377,54 @@
       }
     });
 
+    loadProblemsBtn.addEventListener("click", async () => {
+      try {
+        await loadProblems();
+      } catch (err) {
+        log(`Load fejl: ${err.message}`, "err");
+      }
+    });
+
+    sendProblemBtn.addEventListener("click", async () => {
+      try {
+        const p = getSelectedProblem();
+        if (!p) {
+          throw new Error("Vælg et problem først.");
+        }
+        await sendAsciiCommand(ledPayloadForProblem(p, "SHOW"));
+      } catch (err) {
+        log(`Send fejl: ${err.message}`, "err");
+      }
+    });
+
+    topProblemBtn.addEventListener("click", async () => {
+      try {
+        const p = getSelectedProblem();
+        if (!p) {
+          throw new Error("Vælg et problem først.");
+        }
+        await sendAsciiCommand(ledPayloadForProblem(p, "TOP"));
+      } catch (err) {
+        log(`Top fejl: ${err.message}`, "err");
+      }
+    });
+
+    copyPayloadBtn.addEventListener("click", async () => {
+      try {
+        const p = getSelectedProblem();
+        if (!p) {
+          throw new Error("Vælg et problem først.");
+        }
+        const payload = ledPayloadForProblem(p, "TOP");
+        await navigator.clipboard.writeText(payload);
+        log(`Payload kopieret: ${payload}`, "ok");
+      } catch (err) {
+        log(`Copy fejl: ${err.message}`, "err");
+      }
+    });
+
+    problemSelect.addEventListener("change", renderProblemMeta);
+
     clearLogBtn.addEventListener("click", () => {
       logEl.textContent = "";
       statusEl.textContent = "Log ryddet.";
@@ -319,6 +436,10 @@
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", fitLogHeight);
     }
+
+    loadProblems().catch((err) => {
+      log(`Auto-load fejl: ${err.message}`, "err");
+    });
   </script>
 </body>
 </html>

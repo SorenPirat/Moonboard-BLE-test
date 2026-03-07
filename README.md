@@ -12,7 +12,9 @@ Minimal test-side til at validere:
   - `Send LED OFF`
   - `Send PULSE`
   - `Send Custom`
+  - `Load Problems` + problemvælger + `Top Problem (LED show)`
 - UUID-felter så du kan skifte service/characteristic uden at kode om.
+- `problems.sample.json` med 20 lokale testproblemer.
 
 ## Kør lokalt
 
@@ -51,9 +53,10 @@ Juster formatet til det din BLE-modtager forventer.
 1. Start med `Scan all BLE devices` slået til.
 2. Indtast korrekt `Service UUID` og `Write Characteristic UUID`.
 3. Tryk `Connect BLE`.
-4. Send `LED:ON`.
-5. Tjek at LED reagerer.
-6. Prøv disconnect/reconnect 10+ gange og noter fejl.
+4. Tryk `Load Problems` og vælg et problem.
+5. Tryk `Show Problem LEDs` eller `Top Problem (LED show)`.
+6. Tjek at LED reagerer.
+7. Prøv disconnect/reconnect 10+ gange og noter fejl.
 
 Hvis enheden stadig ikke dukker op, er den ofte enten ikke BLE, eller også mangler browseren tilladelser til `Nearby devices` og `Location`.
 # Moonboard-BLE-test

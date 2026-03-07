@@ -1,0 +1,22 @@
+[
+  { "id": "MB-001", "name": "Blue Static Warmup", "grade": "6A", "holdCount": 8, "setter": "Hall Test", "isBenchmark": false, "holds": ["A3", "B5", "C7", "D8", "E10", "F12", "G14", "H16"] },
+  { "id": "MB-002", "name": "Left Lock Pop", "grade": "6A+", "holdCount": 9, "setter": "Hall Test", "isBenchmark": false, "holds": ["A2", "B4", "C6", "D7", "E8", "F10", "G12", "H14", "I16"] },
+  { "id": "MB-003", "name": "Pocket Shuffle", "grade": "6B", "holdCount": 7, "setter": "Soren", "isBenchmark": true, "holds": ["B3", "C5", "D7", "E9", "F11", "G13", "H15"] },
+  { "id": "MB-004", "name": "Green Compression", "grade": "6B+", "holdCount": 10, "setter": "Soren", "isBenchmark": false, "holds": ["A4", "B6", "C8", "D9", "E11", "F12", "G13", "H14", "I15", "J16"] },
+  { "id": "MB-005", "name": "Shoulder Roll", "grade": "6C", "holdCount": 8, "setter": "Mads", "isBenchmark": false, "holds": ["C2", "D4", "E6", "F8", "G9", "H11", "I13", "J15"] },
+  { "id": "MB-006", "name": "Pinch to Crimp", "grade": "6C+", "holdCount": 9, "setter": "Mads", "isBenchmark": true, "holds": ["A5", "B7", "C9", "D10", "E12", "F13", "G14", "H15", "I16"] },
+  { "id": "MB-007", "name": "Sidepull Relay", "grade": "7A", "holdCount": 7, "setter": "Ida", "isBenchmark": true, "holds": ["B2", "C4", "D6", "E8", "F10", "G12", "H14"] },
+  { "id": "MB-008", "name": "Core Swing", "grade": "7A", "holdCount": 8, "setter": "Ida", "isBenchmark": false, "holds": ["A3", "B5", "C6", "D8", "E10", "F11", "G13", "H15"] },
+  { "id": "MB-009", "name": "Drop Knee Exit", "grade": "7A+", "holdCount": 9, "setter": "Nikolaj", "isBenchmark": false, "holds": ["C3", "D5", "E7", "F9", "G10", "H12", "I13", "J14", "K16"] },
+  { "id": "MB-010", "name": "Crimp Pyramid", "grade": "7A+", "holdCount": 8, "setter": "Nikolaj", "isBenchmark": true, "holds": ["A4", "B6", "C7", "D9", "E11", "F12", "G14", "H16"] },
+  { "id": "MB-011", "name": "Short Dyno", "grade": "7B", "holdCount": 6, "setter": "Liv", "isBenchmark": false, "holds": ["B4", "C6", "D8", "E10", "F12", "G14"] },
+  { "id": "MB-012", "name": "Iron Wrist", "grade": "7B", "holdCount": 10, "setter": "Liv", "isBenchmark": false, "holds": ["A2", "B4", "C5", "D7", "E8", "F10", "G11", "H13", "I14", "J16"] },
+  { "id": "MB-013", "name": "Campus Taste", "grade": "7B+", "holdCount": 7, "setter": "Jonas", "isBenchmark": true, "holds": ["C4", "D6", "E8", "F10", "G12", "H14", "I16"] },
+  { "id": "MB-014", "name": "Split Feet", "grade": "7B+", "holdCount": 8, "setter": "Jonas", "isBenchmark": false, "holds": ["A3", "B5", "C7", "D8", "E10", "F12", "G13", "H15"] },
+  { "id": "MB-015", "name": "Match Denied", "grade": "7C", "holdCount": 9, "setter": "Freja", "isBenchmark": true, "holds": ["B2", "C4", "D5", "E7", "F9", "G10", "H12", "I14", "J16"] },
+  { "id": "MB-016", "name": "Cross Through", "grade": "7C", "holdCount": 8, "setter": "Freja", "isBenchmark": false, "holds": ["A5", "B7", "C8", "D10", "E11", "F13", "G14", "H16"] },
+  { "id": "MB-017", "name": "Biceps Tax", "grade": "7C+", "holdCount": 7, "setter": "Rasmus", "isBenchmark": true, "holds": ["C3", "D5", "E7", "F9", "G11", "H13", "I15"] },
+  { "id": "MB-018", "name": "Glass Crimps", "grade": "7C+", "holdCount": 8, "setter": "Rasmus", "isBenchmark": false, "holds": ["A4", "B6", "C8", "D9", "E11", "F12", "G14", "H15"] },
+  { "id": "MB-019", "name": "Comp Finish", "grade": "8A", "holdCount": 9, "setter": "Comp Crew", "isBenchmark": true, "holds": ["B3", "C5", "D7", "E8", "F10", "G12", "H13", "I15", "J16"] },
+  { "id": "MB-020", "name": "Final Boss Lite", "grade": "8A+", "holdCount": 10, "setter": "Comp Crew", "isBenchmark": false, "holds": ["A2", "B4", "C6", "D8", "E9", "F11", "G12", "H14", "I15", "J16"] }
+]
