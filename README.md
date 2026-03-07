@@ -60,4 +60,3 @@ Juster formatet til det din BLE-modtager forventer.
 
 Hvis enheden stadig ikke dukker op, er den ofte enten ikke BLE, eller også mangler browseren tilladelser til `Nearby devices` og `Location`.
 # Moonboard-BLE-test
-# Moonboard-BLE-test
