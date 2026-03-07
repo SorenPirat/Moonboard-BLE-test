@@ -121,6 +121,10 @@
         <input id="charUuid" value="0000ffe1-0000-1000-8000-00805f9b34fb" />
       </label>
     </div>
+    <label>
+      <input id="scanAll" type="checkbox" checked />
+      Scan all BLE devices (anbefalet til fejlsøgning)
+    </label>
     <div class="actions">
       <button id="connectBtn" class="primary">Connect BLE</button>
       <button id="disconnectBtn">Disconnect</button>
@@ -145,6 +149,7 @@
   <script>
     const serviceUuidInput = document.getElementById("serviceUuid");
     const charUuidInput = document.getElementById("charUuid");
+    const scanAllInput = document.getElementById("scanAll");
     const customCommandInput = document.getElementById("customCommand");
     const statusEl = document.getElementById("status");
     const logEl = document.getElementById("log");
@@ -187,21 +192,29 @@
 
       const serviceUuid = serviceUuidInput.value.trim();
       const charUuid = charUuidInput.value.trim();
+      const scanAll = scanAllInput.checked;
 
       if (!serviceUuid || !charUuid) {
         throw new Error("Service UUID og Characteristic UUID skal udfyldes.");
       }
 
-      device = await navigator.bluetooth.requestDevice({
-        filters: [{ services: [serviceUuid] }],
-        optionalServices: [serviceUuid]
-      });
+      const requestOptions = scanAll
+        ? { acceptAllDevices: true, optionalServices: [serviceUuid] }
+        : { filters: [{ services: [serviceUuid] }], optionalServices: [serviceUuid] };
+
+      device = await navigator.bluetooth.requestDevice(requestOptions);
 
       device.addEventListener("gattserverdisconnected", () => {
         log("Forbindelse afbrudt.", "err");
       });
 
       server = await device.gatt.connect();
+      const services = await server.getPrimaryServices();
+      if (services.length) {
+        log(`Fundne services: ${services.map((s) => s.uuid).join(", ")}`);
+      } else {
+        log("Ingen services fundet via getPrimaryServices().");
+      }
       const service = await server.getPrimaryService(serviceUuid);
       characteristic = await service.getCharacteristic(charUuid);
       log(`Forbundet til ${device.name || "ukendt enhed"}.`, "ok");

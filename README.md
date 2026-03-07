@@ -48,10 +48,13 @@ Juster formatet til det din BLE-modtager forventer.
 
 ## Hurtig test-flow
 
-1. Indtast korrekt `Service UUID` og `Write Characteristic UUID`.
-2. Tryk `Connect BLE`.
-3. Send `LED:ON`.
-4. Tjek at LED reagerer.
-5. Prøv disconnect/reconnect 10+ gange og noter fejl.
+1. Start med `Scan all BLE devices` slået til.
+2. Indtast korrekt `Service UUID` og `Write Characteristic UUID`.
+3. Tryk `Connect BLE`.
+4. Send `LED:ON`.
+5. Tjek at LED reagerer.
+6. Prøv disconnect/reconnect 10+ gange og noter fejl.
+
+Hvis enheden stadig ikke dukker op, er den ofte enten ikke BLE, eller også mangler browseren tilladelser til `Nearby devices` og `Location`.
 # Moonboard-BLE-test
 # Moonboard-BLE-test
