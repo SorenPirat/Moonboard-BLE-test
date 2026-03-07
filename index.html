@@ -101,7 +101,12 @@
       border-radius: 8px;
       padding: 10px;
       overflow-x: auto;
-      max-height: 210px;
+      max-height: min(42vh, 320px);
+      min-height: 120px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: clamp(12px, 2.8vw, 14px);
+      line-height: 1.35;
     }
     .ok { color: var(--accent); }
     .err { color: var(--danger); }
@@ -165,6 +170,7 @@
     let device = null;
     let server = null;
     let characteristic = null;
+    const LOG_MAX_LINES = 120;
 
     function now() {
       return new Date().toLocaleTimeString("da-DK");
@@ -172,13 +178,24 @@
 
     function log(msg, cls = "") {
       const prefix = `[${now()}] `;
-      const line = `${prefix}${msg}\n`;
-      logEl.textContent += line;
+      const line = `${prefix}${msg}`;
+      const lines = logEl.textContent ? logEl.textContent.split("\n") : [];
+      lines.push(line);
+      if (lines.length > LOG_MAX_LINES) {
+        lines.splice(0, lines.length - LOG_MAX_LINES);
+      }
+      logEl.textContent = lines.join("\n");
       logEl.scrollTop = logEl.scrollHeight;
       if (cls) {
         statusEl.className = cls;
       }
       statusEl.textContent = msg;
+    }
+
+    function fitLogHeight() {
+      const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const target = Math.max(120, Math.min(360, Math.floor(viewportHeight * 0.35)));
+      logEl.style.maxHeight = `${target}px`;
     }
 
     function ensureWebBluetooth() {
@@ -296,6 +313,12 @@
       statusEl.textContent = "Log ryddet.";
       statusEl.className = "";
     });
+
+    fitLogHeight();
+    window.addEventListener("resize", fitLogHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", fitLogHeight);
+    }
   </script>
 </body>
 </html>
