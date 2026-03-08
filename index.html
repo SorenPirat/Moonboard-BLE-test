@@ -196,6 +196,11 @@
     let characteristic = null;
     let problems = [];
     const LOG_MAX_LINES = 120;
+    const COMMON_SERVICE_UUIDS = [
+      "0000ffe0-0000-1000-8000-00805f9b34fb", // HM-10 style UART
+      "6e400001-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART service
+      "0000fff0-0000-1000-8000-00805f9b34fb"
+    ];
 
     function now() {
       return new Date().toLocaleTimeString("da-DK");
@@ -229,20 +234,53 @@
       }
     }
 
+    function buildOptionalServices(userServiceUuid) {
+      const all = [...COMMON_SERVICE_UUIDS];
+      if (userServiceUuid) {
+        all.push(userServiceUuid);
+      }
+      return [...new Set(all.map((s) => s.toLowerCase()))];
+    }
+
+    function isWritable(c) {
+      return c?.properties?.write || c?.properties?.writeWithoutResponse;
+    }
+
+    async function findWritableCharacteristic(services, preferredCharUuid) {
+      const normalizedPreferred = preferredCharUuid ? preferredCharUuid.toLowerCase() : "";
+
+      for (const service of services) {
+        const chars = await service.getCharacteristics();
+        for (const c of chars) {
+          if (normalizedPreferred && c.uuid.toLowerCase() === normalizedPreferred && isWritable(c)) {
+            return { service, characteristic: c };
+          }
+        }
+      }
+
+      for (const service of services) {
+        const chars = await service.getCharacteristics();
+        for (const c of chars) {
+          if (isWritable(c)) {
+            return { service, characteristic: c };
+          }
+        }
+      }
+
+      return null;
+    }
+
     async function connect() {
       ensureWebBluetooth();
 
       const serviceUuid = serviceUuidInput.value.trim();
       const charUuid = charUuidInput.value.trim();
       const scanAll = scanAllInput.checked;
-
-      if (!serviceUuid || !charUuid) {
-        throw new Error("Service UUID og Characteristic UUID skal udfyldes.");
-      }
+      const optionalServices = buildOptionalServices(serviceUuid);
 
       const requestOptions = scanAll
-        ? { acceptAllDevices: true, optionalServices: [serviceUuid] }
-        : { filters: [{ services: [serviceUuid] }], optionalServices: [serviceUuid] };
+        ? { acceptAllDevices: true, optionalServices }
+        : { filters: [{ services: [serviceUuid || COMMON_SERVICE_UUIDS[0]] }], optionalServices };
 
       device = await navigator.bluetooth.requestDevice(requestOptions);
 
@@ -252,14 +290,40 @@
 
       server = await device.gatt.connect();
       const services = await server.getPrimaryServices();
-      if (services.length) {
-        log(`Fundne services: ${services.map((s) => s.uuid).join(", ")}`);
-      } else {
-        log("Ingen services fundet via getPrimaryServices().");
+      if (!services.length) {
+        throw new Error("Ingen services fundet. Enheden er muligvis ikke BLE-GATT eller skjuler services for Web Bluetooth.");
       }
-      const service = await server.getPrimaryService(serviceUuid);
-      characteristic = await service.getCharacteristic(charUuid);
-      log(`Forbundet til ${device.name || "ukendt enhed"}.`, "ok");
+      log(`Fundne services: ${services.map((s) => s.uuid).join(", ")}`);
+
+      let selectedService = null;
+      let selectedChar = null;
+
+      if (serviceUuid && charUuid) {
+        try {
+          const service = await server.getPrimaryService(serviceUuid);
+          const char = await service.getCharacteristic(charUuid);
+          if (isWritable(char)) {
+            selectedService = service;
+            selectedChar = char;
+          }
+        } catch (_err) {
+          log("Kunne ikke bruge angivet service/characteristic. Prøver auto-discovery...");
+        }
+      }
+
+      if (!selectedChar) {
+        const found = await findWritableCharacteristic(services, charUuid);
+        if (!found) {
+          throw new Error("Ingen writable characteristic fundet. Angiv korrekt UUID manuelt.");
+        }
+        selectedService = found.service;
+        selectedChar = found.characteristic;
+      }
+
+      characteristic = selectedChar;
+      serviceUuidInput.value = selectedService.uuid;
+      charUuidInput.value = selectedChar.uuid;
+      log(`Forbundet til ${device.name || "ukendt enhed"} | service=${selectedService.uuid} | char=${selectedChar.uuid}`, "ok");
     }
 
     async function disconnect() {

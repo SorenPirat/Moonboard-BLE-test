@@ -14,6 +14,7 @@ Minimal test-side til at validere:
   - `Send Custom`
   - `Load Problems` + problemvælger + `Top Problem (LED show)`
 - UUID-felter så du kan skifte service/characteristic uden at kode om.
+- Auto-discovery af writable BLE characteristic, hvis de indtastede UUID'er er forkerte.
 - `problems.sample.json` med 20 lokale testproblemer.
 
 ## Kør lokalt
@@ -59,4 +60,5 @@ Juster formatet til det din BLE-modtager forventer.
 7. Prøv disconnect/reconnect 10+ gange og noter fejl.
 
 Hvis enheden stadig ikke dukker op, er den ofte enten ikke BLE, eller også mangler browseren tilladelser til `Nearby devices` og `Location`.
+Hvis du får en "no services found"-fejl, er enheden typisk ikke eksponeret som BLE GATT til Web Bluetooth, eller også er de nødvendige services ikke tilladt.
 # Moonboard-BLE-test
