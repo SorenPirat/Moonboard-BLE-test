@@ -197,6 +197,10 @@
     let problems = [];
     const LOG_MAX_LINES = 120;
     const COMMON_SERVICE_UUIDS = [
+      "00001800-0000-1000-8000-00805f9b34fb", // Generic Access
+      "00001801-0000-1000-8000-00805f9b34fb", // Generic Attribute
+      "0000180a-0000-1000-8000-00805f9b34fb", // Device Information
+      "0000180f-0000-1000-8000-00805f9b34fb", // Battery
       "0000ffe0-0000-1000-8000-00805f9b34fb", // HM-10 style UART
       "6e400001-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART service
       "0000fff0-0000-1000-8000-00805f9b34fb"
@@ -246,6 +250,14 @@
       return c?.properties?.write || c?.properties?.writeWithoutResponse;
     }
 
+    function noServicesErrorText(device) {
+      const maybeClassic = !device?.uuids || device.uuids.length === 0;
+      if (maybeClassic) {
+        return "Ingen services fundet. Enheden kan være Bluetooth Classic (ikke BLE-GATT), eller også er dens GATT-services ikke whitelisted i requestDevice optionalServices.";
+      }
+      return "Ingen services fundet. Prøv igen med korrekt Service UUID, eller tilføj boardets service i optionalServices-listen før forbindelsen oprettes.";
+    }
+
     async function findWritableCharacteristic(services, preferredCharUuid) {
       const normalizedPreferred = preferredCharUuid ? preferredCharUuid.toLowerCase() : "";
 
@@ -283,6 +295,12 @@
         : { filters: [{ services: [serviceUuid || COMMON_SERVICE_UUIDS[0]] }], optionalServices };
 
       device = await navigator.bluetooth.requestDevice(requestOptions);
+      log(`Valgt enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
+      if (Array.isArray(device.uuids) && device.uuids.length) {
+        log(`Advertised UUIDs: ${device.uuids.join(", ")}`);
+      } else {
+        log("Advertised UUIDs: ingen (kan tyde på Classic BT eller skjult advertising-data)");
+      }
 
       device.addEventListener("gattserverdisconnected", () => {
         log("Forbindelse afbrudt.", "err");
@@ -291,7 +309,7 @@
       server = await device.gatt.connect();
       const services = await server.getPrimaryServices();
       if (!services.length) {
-        throw new Error("Ingen services fundet. Enheden er muligvis ikke BLE-GATT eller skjuler services for Web Bluetooth.");
+        throw new Error(noServicesErrorText(device));
       }
       log(`Fundne services: ${services.map((s) => s.uuid).join(", ")}`);
 
