@@ -54,6 +54,18 @@
       gap: 6px;
       font-size: 0.9rem;
     }
+    label.check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    label.check input[type="checkbox"] {
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      flex: 0 0 auto;
+    }
     input, button, textarea, select {
       background: #0b1220;
       color: var(--text);
@@ -85,6 +97,93 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
       margin-top: 10px;
+    }
+    .checks-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .panel {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #334155;
+    }
+    .hint {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .board-wrap {
+      margin-top: 12px;
+      overflow-x: auto;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: #0b1220;
+      padding: 10px;
+    }
+    .board-grid {
+      display: grid;
+      grid-template-columns: 28px repeat(11, minmax(34px, 1fr));
+      gap: 6px;
+      min-width: 470px;
+      align-items: center;
+    }
+    .axis-label {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .hold-btn {
+      min-height: 34px;
+      padding: 6px 4px;
+      font-size: 0.72rem;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #182133;
+    }
+    .hold-btn.start {
+      background: #166534;
+      border-color: #22c55e;
+    }
+    .hold-btn.move {
+      background: #1d4ed8;
+      border-color: #3b82f6;
+    }
+    .hold-btn.top {
+      background: #991b1b;
+      border-color: #ef4444;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: #475569;
+    }
+    .legend .start::before { background: #22c55e; }
+    .legend .move::before { background: #3b82f6; }
+    .legend .top::before { background: #ef4444; }
+    .summary-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #0b1220;
+      border: 1px solid #334155;
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     #status {
       margin-top: 12px;
@@ -126,7 +225,7 @@
         <input id="charUuid" value="0000ffe1-0000-1000-8000-00805f9b34fb" />
       </label>
     </div>
-    <label>
+    <label class="check">
       <input id="scanAll" type="checkbox" checked />
       Scan all BLE devices (anbefalet til fejlsøgning)
     </label>
@@ -135,17 +234,21 @@
       <button id="disconnectBtn">Disconnect</button>
     </div>
     <div class="actions-3">
-      <button id="onBtn">Send LED ON</button>
-      <button id="offBtn">Send LED OFF</button>
-      <button id="pulseBtn">Send PULSE</button>
+      <button id="onBtn">Send Test Problem A</button>
+      <button id="offBtn">Send Empty Payload</button>
+      <button id="pulseBtn">Send Test Problem B</button>
     </div>
     <label style="margin-top: 10px;">
-      Custom command (ASCII)
-      <input id="customCommand" placeholder="fx: LED:SHOW:TOP" />
+      Custom command (MoonBoard payload)
+      <input id="customCommand" placeholder="fx: l#S2,S31,P42,E128#" />
     </label>
     <div class="actions">
       <button id="sendCustomBtn">Send Custom</button>
       <button id="clearLogBtn" class="warn">Clear Log</button>
+    </div>
+    <div class="actions">
+      <button id="copyLogBtn">Copy Logs</button>
+      <button id="downloadLogBtn">Download Logs</button>
     </div>
     <hr style="border-color:#334155; margin:16px 0;" />
     <h2 style="margin:0; font-size:1.05rem;">Local Problem Test</h2>
@@ -165,6 +268,60 @@
       <button id="topProblemBtn" class="primary">Top Problem (LED show)</button>
       <button id="copyPayloadBtn">Copy LED Payload</button>
     </div>
+    <div class="panel">
+      <h2 style="margin:0; font-size:1.05rem;">Problem Builder</h2>
+      <p>Tryk pa greb for at cykle mellem ingen, start, move og top. Gemte problemer bliver lagt ind i problemlisten lokalt pa mobilen.</p>
+      <div class="row">
+        <label>
+          Setup
+          <select id="builderSetup"></select>
+        </label>
+        <label>
+          Problemnavn
+          <input id="builderName" placeholder="fx: Hall Test 1" />
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          Grade
+          <input id="builderGrade" value="6A+" />
+        </label>
+        <label>
+          Setter
+          <input id="builderSetter" value="Mobile Builder" />
+        </label>
+      </div>
+      <div class="checks-2">
+        <label class="check">
+          <input id="builderBenchmark" type="checkbox" />
+          Benchmark
+        </label>
+        <label class="check">
+          <input id="builderLivePreview" type="checkbox" />
+          Live preview pa boardet mens jeg bygger
+        </label>
+      </div>
+      <div class="actions-3">
+        <button id="builderClearBtn">Clear Builder</button>
+        <button id="builderSaveBtn" class="primary">Save Problem</button>
+        <button id="builderCopyPayloadBtn">Copy Builder Payload</button>
+      </div>
+      <div class="actions">
+        <button id="builderUpdateBtn">Update Selected Problem</button>
+        <button id="builderDownloadBtn">Download Saved Problems</button>
+        <button id="builderResetSavedBtn" class="warn">Clear Saved Problems</button>
+      </div>
+      <div id="builderSummary" class="summary-box">Loader hold-layout...</div>
+      <div class="legend">
+        <span class="start">Start</span>
+        <span class="move">Move</span>
+        <span class="top">Top</span>
+      </div>
+      <div class="board-wrap">
+        <div id="builderBoard" class="board-grid"></div>
+      </div>
+      <div class="hint">Tip: Download saved problems eller copy logs, sa du kan tage alt med hjem fra hallen.</div>
+    </div>
     <div id="status">Ikke forbundet.</div>
     <pre id="log"></pre>
   </div>
@@ -178,6 +335,14 @@
     const problemMeta = document.getElementById("problemMeta");
     const statusEl = document.getElementById("status");
     const logEl = document.getElementById("log");
+    const builderSetupSelect = document.getElementById("builderSetup");
+    const builderNameInput = document.getElementById("builderName");
+    const builderGradeInput = document.getElementById("builderGrade");
+    const builderSetterInput = document.getElementById("builderSetter");
+    const builderBenchmarkInput = document.getElementById("builderBenchmark");
+    const builderLivePreviewInput = document.getElementById("builderLivePreview");
+    const builderSummaryEl = document.getElementById("builderSummary");
+    const builderBoardEl = document.getElementById("builderBoard");
 
     const connectBtn = document.getElementById("connectBtn");
     const disconnectBtn = document.getElementById("disconnectBtn");
@@ -186,16 +351,39 @@
     const pulseBtn = document.getElementById("pulseBtn");
     const sendCustomBtn = document.getElementById("sendCustomBtn");
     const clearLogBtn = document.getElementById("clearLogBtn");
+    const copyLogBtn = document.getElementById("copyLogBtn");
+    const downloadLogBtn = document.getElementById("downloadLogBtn");
     const loadProblemsBtn = document.getElementById("loadProblemsBtn");
     const sendProblemBtn = document.getElementById("sendProblemBtn");
     const topProblemBtn = document.getElementById("topProblemBtn");
     const copyPayloadBtn = document.getElementById("copyPayloadBtn");
+    const builderClearBtn = document.getElementById("builderClearBtn");
+    const builderSaveBtn = document.getElementById("builderSaveBtn");
+    const builderUpdateBtn = document.getElementById("builderUpdateBtn");
+    const builderCopyPayloadBtn = document.getElementById("builderCopyPayloadBtn");
+    const builderDownloadBtn = document.getElementById("builderDownloadBtn");
+    const builderResetSavedBtn = document.getElementById("builderResetSavedBtn");
 
     let device = null;
     let server = null;
     let characteristic = null;
+    let disconnectHandler = null;
     let problems = [];
+    let sampleProblems = [];
+    let customProblems = [];
+    let holdSetupData = {};
+    let builderSelection = {};
+    let builderPreviewTimer = null;
     const LOG_MAX_LINES = 120;
+    const LOG_STORAGE_KEY = "moonboard-ble-log";
+    const CUSTOM_PROBLEMS_STORAGE_KEY = "moonboard-custom-problems";
+    const TEST_PAYLOADS = {
+      on: "l#S2,S31,P42,P64,P81,P96,P121,E128#",
+      off: "l##",
+      pulse: "l#S33,S40,P65,P80,P97,P120,E129#"
+    };
+    const BOARD_COLUMNS = "ABCDEFGHIJK".split("");
+    const BOARD_ROWS = Array.from({ length: 18 }, (_, index) => 18 - index);
     const COMMON_SERVICE_UUIDS = [
       "00001800-0000-1000-8000-00805f9b34fb", // Generic Access
       "00001801-0000-1000-8000-00805f9b34fb", // Generic Attribute
@@ -219,11 +407,88 @@
         lines.splice(0, lines.length - LOG_MAX_LINES);
       }
       logEl.textContent = lines.join("\n");
+      localStorage.setItem(LOG_STORAGE_KEY, logEl.textContent);
       logEl.scrollTop = logEl.scrollHeight;
       if (cls) {
         statusEl.className = cls;
       }
       statusEl.textContent = msg;
+    }
+
+    function loadPersistedLogs() {
+      const saved = localStorage.getItem(LOG_STORAGE_KEY);
+      if (!saved) {
+        return;
+      }
+      logEl.textContent = saved;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function buildLogExportText() {
+      const lines = logEl.textContent.trim();
+      const header = [
+        "MoonBoard BLE Test Logs",
+        `Exported: ${new Date().toLocaleString("da-DK")}`,
+        `User agent: ${navigator.userAgent}`,
+        ""
+      ].join("\n");
+      return `${header}${lines}`;
+    }
+
+    async function copyLogs() {
+      const text = buildLogExportText();
+      await navigator.clipboard.writeText(text);
+      log("Logs kopieret til clipboard.", "ok");
+    }
+
+    function downloadLogs() {
+      const text = buildLogExportText();
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `moonboard-ble-log-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      log("Logs downloadet som tekstfil.", "ok");
+    }
+
+    function getSavedCustomProblems() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CUSTOM_PROBLEMS_STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch (_err) {
+        return [];
+      }
+    }
+
+    function saveCustomProblems() {
+      localStorage.setItem(CUSTOM_PROBLEMS_STORAGE_KEY, JSON.stringify(customProblems, null, 2));
+    }
+
+    function syncProblemList() {
+      const previousValue = problemSelect.value;
+      problems = [...sampleProblems, ...customProblems];
+      problemSelect.innerHTML = "";
+
+      const first = document.createElement("option");
+      first.value = "";
+      first.textContent = problems.length ? "Vaelg problem" : "Ingen problemer loaded endnu";
+      problemSelect.appendChild(first);
+
+      for (const p of problems) {
+        const option = document.createElement("option");
+        option.value = p.id;
+        option.textContent = `${p.name} (${p.grade})`;
+        problemSelect.appendChild(option);
+      }
+
+      if (problems.some((p) => p.id === previousValue)) {
+        problemSelect.value = previousValue;
+      }
+      renderProblemMeta();
     }
 
     function fitLogHeight() {
@@ -258,6 +523,18 @@
       return "Ingen services fundet. Prøv igen med korrekt Service UUID, eller tilføj boardets service i optionalServices-listen før forbindelsen oprettes.";
     }
 
+    function resetConnectionState({ keepDevice = false } = {}) {
+      server = null;
+      characteristic = null;
+      if (!keepDevice && device && disconnectHandler) {
+        device.removeEventListener("gattserverdisconnected", disconnectHandler);
+      }
+      if (!keepDevice) {
+        device = null;
+        disconnectHandler = null;
+      }
+    }
+
     async function findWritableCharacteristic(services, preferredCharUuid) {
       const normalizedPreferred = preferredCharUuid ? preferredCharUuid.toLowerCase() : "";
 
@@ -290,23 +567,41 @@
       const scanAll = scanAllInput.checked;
       const optionalServices = buildOptionalServices(serviceUuid);
 
-      const requestOptions = scanAll
-        ? { acceptAllDevices: true, optionalServices }
-        : { filters: [{ services: [serviceUuid || COMMON_SERVICE_UUIDS[0]] }], optionalServices };
+      if (!device) {
+        const requestOptions = scanAll
+          ? { acceptAllDevices: true, optionalServices }
+          : { filters: [{ services: [serviceUuid || COMMON_SERVICE_UUIDS[0]] }], optionalServices };
 
-      device = await navigator.bluetooth.requestDevice(requestOptions);
-      log(`Valgt enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
-      if (Array.isArray(device.uuids) && device.uuids.length) {
-        log(`Advertised UUIDs: ${device.uuids.join(", ")}`);
+        device = await navigator.bluetooth.requestDevice(requestOptions);
+        log(`Valgt enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
+        if (Array.isArray(device.uuids) && device.uuids.length) {
+          log(`Advertised UUIDs: ${device.uuids.join(", ")}`);
+        } else {
+          log("Advertised UUIDs: ingen (kan tyde på Classic BT eller skjult advertising-data)");
+        }
       } else {
-        log("Advertised UUIDs: ingen (kan tyde på Classic BT eller skjult advertising-data)");
+        log(`Genbruger enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
       }
 
-      device.addEventListener("gattserverdisconnected", () => {
-        log("Forbindelse afbrudt.", "err");
-      });
+      resetConnectionState({ keepDevice: true });
+      if (!disconnectHandler) {
+        disconnectHandler = () => {
+          resetConnectionState({ keepDevice: true });
+          log("Forbindelse afbrudt.", "err");
+        };
+        device.addEventListener("gattserverdisconnected", disconnectHandler);
+      }
 
-      server = await device.gatt.connect();
+      if (!device.gatt) {
+        throw new Error("Den valgte enhed understøtter ikke GATT.");
+      }
+
+      log("Opretter GATT-forbindelse...");
+      server = device.gatt.connected ? device.gatt : await device.gatt.connect();
+      if (!server.connected) {
+        throw new Error("GATT-forbindelsen blev ikke etableret.");
+      }
+
       const services = await server.getPrimaryServices();
       if (!services.length) {
         throw new Error(noServicesErrorText(device));
@@ -347,14 +642,16 @@
     async function disconnect() {
       if (device && device.gatt && device.gatt.connected) {
         device.gatt.disconnect();
+        resetConnectionState({ keepDevice: true });
         log("Disconnected.", "");
       } else {
+        resetConnectionState({ keepDevice: true });
         log("Ingen aktiv BLE-forbindelse.", "");
       }
     }
 
     async function sendAsciiCommand(command) {
-      if (!characteristic) {
+      if (!device?.gatt?.connected || !characteristic) {
         throw new Error("Ikke forbundet. Tryk Connect BLE først.");
       }
       const encoder = new TextEncoder();
@@ -368,8 +665,307 @@
       return problems.find((p) => p.id === problemId) || null;
     }
 
+    function moonboardPositionForHold(hold, numRows = 18) {
+      if (typeof hold !== "string") {
+        throw new Error(`Ugyldigt hold-format: ${hold}`);
+      }
+
+      const trimmed = hold.trim().toUpperCase();
+      const match = trimmed.match(/^([A-Z])(\d{1,2})$/);
+      if (!match) {
+        throw new Error(`Ugyldigt hold-format: ${hold}`);
+      }
+
+      const column = match[1].charCodeAt(0) - 65;
+      const row = Number(match[2]);
+      if (column < 0 || column > 10 || row < 1 || row > numRows) {
+        throw new Error(`Hold uden for MoonBoard-grid: ${hold}`);
+      }
+
+      if (column % 2 === 0) {
+        return column * numRows + (row - 1);
+      }
+      return column * numRows + (numRows - row);
+    }
+
+    function getBuilderSetupHolds() {
+      return holdSetupData[builderSetupSelect.value] || {};
+    }
+
+    function sortHolds(holds) {
+      return [...holds].sort((a, b) => moonboardPositionForHold(a) - moonboardPositionForHold(b));
+    }
+
+    function getBuilderSections() {
+      const entries = Object.entries(builderSelection);
+      const startHolds = sortHolds(entries.filter(([, type]) => type === "start").map(([hold]) => hold));
+      const moveHolds = sortHolds(entries.filter(([, type]) => type === "move").map(([hold]) => hold));
+      const topHolds = sortHolds(entries.filter(([, type]) => type === "top").map(([hold]) => hold));
+      return { startHolds, moveHolds, topHolds };
+    }
+
+    function showProblemInBuilder(problem) {
+      if (!problem) {
+        return;
+      }
+
+      const { startHolds, moveHolds, topHolds } = getProblemSections(problem);
+      builderSelection = {};
+
+      for (const hold of moveHolds) {
+        builderSelection[hold] = "move";
+      }
+      for (const hold of startHolds) {
+        builderSelection[hold] = "start";
+      }
+      for (const hold of topHolds) {
+        builderSelection[hold] = "top";
+      }
+
+      if (problem.setup && holdSetupData[problem.setup]) {
+        builderSetupSelect.value = problem.setup;
+      }
+      if (problem.name) {
+        builderNameInput.value = problem.name;
+      }
+      if (problem.grade) {
+        builderGradeInput.value = problem.grade;
+      }
+      if (problem.setter) {
+        builderSetterInput.value = problem.setter;
+      }
+      builderBenchmarkInput.checked = Boolean(problem.isBenchmark);
+
+      renderBuilderBoard();
+      renderBuilderSummary();
+    }
+
+    function renderBuilderSummary() {
+      const { startHolds, moveHolds, topHolds } = getBuilderSections();
+      if (!builderSetupSelect.value) {
+        builderSummaryEl.textContent = "Ingen hold-setup loaded endnu.";
+        return;
+      }
+
+      const holds = [...startHolds, ...moveHolds, ...topHolds];
+      const summaryProblem = {
+        id: "builder-preview",
+        holds,
+        startHolds,
+        moveHolds,
+        topHolds
+      };
+
+      const payload = holds.length ? ledPayloadForProblem(summaryProblem, "SHOW") : "Ingen payload endnu";
+      builderSummaryEl.textContent =
+        `Setup: ${builderSetupSelect.value}\nStart: ${startHolds.join(", ") || "-"}\nMoves: ${moveHolds.join(", ") || "-"}\nTop: ${topHolds.join(", ") || "-"}\nPayload: ${payload}`;
+    }
+
+    function getBuilderPreviewProblem() {
+      const { startHolds, moveHolds, topHolds } = getBuilderSections();
+      const holds = [...startHolds, ...moveHolds, ...topHolds];
+      if (!holds.length) {
+        return null;
+      }
+      return {
+        id: "builder-live-preview",
+        holds,
+        startHolds,
+        moveHolds,
+        topHolds
+      };
+    }
+
+    async function sendBuilderPreview() {
+      if (!builderLivePreviewInput.checked) {
+        return;
+      }
+      if (!device?.gatt?.connected || !characteristic) {
+        return;
+      }
+
+      const previewProblem = getBuilderPreviewProblem();
+      const payload = previewProblem ? ledPayloadForProblem(previewProblem, "SHOW") : TEST_PAYLOADS.off;
+      await sendAsciiCommand(payload);
+    }
+
+    function queueBuilderPreview() {
+      if (!builderLivePreviewInput.checked) {
+        return;
+      }
+      if (builderPreviewTimer) {
+        clearTimeout(builderPreviewTimer);
+      }
+      builderPreviewTimer = setTimeout(async () => {
+        builderPreviewTimer = null;
+        try {
+          await sendBuilderPreview();
+        } catch (err) {
+          log(`Live preview fejl: ${err.message}`, "err");
+        }
+      }, 120);
+    }
+
+    function cycleBuilderHold(hold) {
+      const states = ["move", "start", "top", ""];
+      const current = builderSelection[hold] || "";
+      const next = states[(states.indexOf(current) + 1) % states.length];
+      if (next) {
+        builderSelection[hold] = next;
+      } else {
+        delete builderSelection[hold];
+      }
+      renderBuilderBoard();
+      renderBuilderSummary();
+      queueBuilderPreview();
+    }
+
+    function renderBuilderBoard() {
+      builderBoardEl.innerHTML = "";
+
+      const emptyCorner = document.createElement("div");
+      builderBoardEl.appendChild(emptyCorner);
+      for (const column of BOARD_COLUMNS) {
+        const colLabel = document.createElement("div");
+        colLabel.className = "axis-label";
+        colLabel.textContent = column;
+        builderBoardEl.appendChild(colLabel);
+      }
+
+      for (const row of BOARD_ROWS) {
+        const rowLabel = document.createElement("div");
+        rowLabel.className = "axis-label";
+        rowLabel.textContent = row;
+        builderBoardEl.appendChild(rowLabel);
+
+        for (const column of BOARD_COLUMNS) {
+          const hold = `${column}${row}`;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = hold;
+          button.className = "hold-btn";
+
+          const state = builderSelection[hold] || "";
+          if (state) {
+            button.classList.add(state);
+          }
+          const holdMeta = getBuilderSetupHolds()[hold];
+          button.title = holdMeta
+            ? `${hold} | ${holdMeta.HoldSet || "ukendt"} | klik for at cykle`
+            : `${hold} | ikke annoteret i HoldSetup.json | klik for at cykle`;
+          button.addEventListener("click", () => cycleBuilderHold(hold));
+
+          builderBoardEl.appendChild(button);
+        }
+      }
+    }
+
+    function resetBuilder() {
+      builderSelection = {};
+      renderBuilderBoard();
+      renderBuilderSummary();
+      queueBuilderPreview();
+    }
+
+    function buildProblemFromBuilder() {
+      const { startHolds, moveHolds, topHolds } = getBuilderSections();
+      const holds = [...startHolds, ...moveHolds, ...topHolds];
+      if (!startHolds.length || !topHolds.length || !holds.length) {
+        throw new Error("Vaelg mindst et startgreb og et topgreb.");
+      }
+
+      return {
+        id: `MB-CUSTOM-${Date.now()}`,
+        name: builderNameInput.value.trim() || `Custom ${new Date().toLocaleTimeString("da-DK")}`,
+        grade: builderGradeInput.value.trim() || "Project",
+        holdCount: holds.length,
+        setter: builderSetterInput.value.trim() || "Mobile Builder",
+        isBenchmark: builderBenchmarkInput.checked,
+        setup: builderSetupSelect.value,
+        startHolds,
+        moveHolds,
+        topHolds,
+        holds
+      };
+    }
+
+    function buildUpdatedProblemFromBuilder(existingProblem) {
+      const problem = buildProblemFromBuilder();
+      return {
+        ...existingProblem,
+        ...problem,
+        id: existingProblem.id
+      };
+    }
+
+    async function copyBuilderPayload() {
+      const payload = ledPayloadForProblem(buildProblemFromBuilder(), "SHOW");
+      await navigator.clipboard.writeText(payload);
+      log(`Builder payload kopieret: ${payload}`, "ok");
+    }
+
+    function downloadSavedProblems() {
+      const blob = new Blob([JSON.stringify(customProblems, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `moonboard-custom-problems-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      log(`Downloaded ${customProblems.length} gemte custom problems.`, "ok");
+    }
+
+    async function loadHoldSetup() {
+      const res = await fetch("./HoldSetup.json", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`Kunne ikke loade HoldSetup.json (${res.status})`);
+      }
+
+      holdSetupData = await res.json();
+      builderSetupSelect.innerHTML = "";
+      const setupNames = Object.keys(holdSetupData);
+      for (const setupName of setupNames) {
+        const option = document.createElement("option");
+        option.value = setupName;
+        option.textContent = setupName;
+        builderSetupSelect.appendChild(option);
+      }
+      if (setupNames.includes("MoonboardMasters2017")) {
+        builderSetupSelect.value = "MoonboardMasters2017";
+      }
+      renderBuilderBoard();
+      renderBuilderSummary();
+    }
+
+    function getProblemSections(problem, mode = "SHOW") {
+      const startHolds = Array.isArray(problem.startHolds) ? problem.startHolds : problem.holds.slice(0, Math.min(2, problem.holds.length));
+      const topHolds = Array.isArray(problem.topHolds) ? problem.topHolds : problem.holds.slice(-1);
+      const moveHolds = Array.isArray(problem.moveHolds)
+        ? problem.moveHolds
+        : problem.holds.slice(startHolds.length, Math.max(startHolds.length, problem.holds.length - topHolds.length));
+
+      if (mode === "TOP") {
+        return { startHolds: [], moveHolds: [], topHolds };
+      }
+
+      return { startHolds, moveHolds, topHolds };
+    }
+
     function ledPayloadForProblem(problem, mode = "SHOW") {
-      return `LED:${mode}:PROBLEM:${problem.id}`;
+      const { startHolds, moveHolds, topHolds } = getProblemSections(problem, mode);
+      const segments = [
+        ...startHolds.map((hold) => `S${moonboardPositionForHold(hold)}`),
+        ...moveHolds.map((hold) => `P${moonboardPositionForHold(hold)}`),
+        ...topHolds.map((hold) => `E${moonboardPositionForHold(hold)}`)
+      ];
+
+      if (!segments.length) {
+        throw new Error(`Problem ${problem.id} har ingen holds at sende.`);
+      }
+
+      return `l#${segments.join(",")}#`;
     }
 
     function renderProblemMeta() {
@@ -378,8 +974,9 @@
         problemMeta.textContent = "Vælg et problem for detaljer.";
         return;
       }
+      const { startHolds, moveHolds, topHolds } = getProblemSections(p);
       problemMeta.textContent =
-        `${p.name} | ${p.grade} | greb: ${p.holdCount} | setter: ${p.setter} | benchmark: ${p.isBenchmark ? "ja" : "nej"}`;
+        `${p.name} | ${p.grade} | start: ${startHolds.length} | moves: ${moveHolds.length} | top: ${topHolds.length} | setter: ${p.setter} | benchmark: ${p.isBenchmark ? "ja" : "nej"}${p.setup ? ` | setup: ${p.setup}` : ""}`;
     }
 
     async function loadProblems() {
@@ -391,20 +988,10 @@
       if (!Array.isArray(data)) {
         throw new Error("problems.sample.json skal være en array.");
       }
-      problems = data;
-      problemSelect.innerHTML = "";
-      const first = document.createElement("option");
-      first.value = "";
-      first.textContent = "Vælg problem";
-      problemSelect.appendChild(first);
-      for (const p of problems) {
-        const option = document.createElement("option");
-        option.value = p.id;
-        option.textContent = `${p.name} (${p.grade})`;
-        problemSelect.appendChild(option);
-      }
-      log(`Loaded ${problems.length} lokale problemer.`, "ok");
-      renderProblemMeta();
+      sampleProblems = data;
+      customProblems = getSavedCustomProblems();
+      syncProblemList();
+      log(`Loaded ${sampleProblems.length} lokale problemer og ${customProblems.length} custom problems.`, "ok");
     }
 
     connectBtn.addEventListener("click", async () => {
@@ -425,7 +1012,7 @@
 
     onBtn.addEventListener("click", async () => {
       try {
-        await sendAsciiCommand("LED:ON");
+        await sendAsciiCommand(TEST_PAYLOADS.on);
       } catch (err) {
         log(`Send fejl: ${err.message}`, "err");
       }
@@ -433,7 +1020,7 @@
 
     offBtn.addEventListener("click", async () => {
       try {
-        await sendAsciiCommand("LED:OFF");
+        await sendAsciiCommand(TEST_PAYLOADS.off);
       } catch (err) {
         log(`Send fejl: ${err.message}`, "err");
       }
@@ -441,7 +1028,7 @@
 
     pulseBtn.addEventListener("click", async () => {
       try {
-        await sendAsciiCommand("LED:PULSE");
+        await sendAsciiCommand(TEST_PAYLOADS.pulse);
       } catch (err) {
         log(`Send fejl: ${err.message}`, "err");
       }
@@ -506,13 +1093,120 @@
     });
 
     problemSelect.addEventListener("change", renderProblemMeta);
+    problemSelect.addEventListener("change", () => {
+      const p = getSelectedProblem();
+      if (p) {
+        showProblemInBuilder(p);
+      }
+    });
+    builderSetupSelect.addEventListener("change", () => {
+      resetBuilder();
+    });
+    builderLivePreviewInput.addEventListener("change", async () => {
+      try {
+        await sendBuilderPreview();
+        log(
+          builderLivePreviewInput.checked
+            ? "Live preview aktiveret. Builder sender nu til boardet ved hvert klik."
+            : "Live preview deaktiveret.",
+          ""
+        );
+      } catch (err) {
+        log(`Live preview fejl: ${err.message}`, "err");
+      }
+    });
 
     clearLogBtn.addEventListener("click", () => {
       logEl.textContent = "";
+      localStorage.removeItem(LOG_STORAGE_KEY);
       statusEl.textContent = "Log ryddet.";
       statusEl.className = "";
     });
 
+    copyLogBtn.addEventListener("click", async () => {
+      try {
+        await copyLogs();
+      } catch (err) {
+        log(`Copy log fejl: ${err.message}`, "err");
+      }
+    });
+
+    downloadLogBtn.addEventListener("click", () => {
+      try {
+        downloadLogs();
+      } catch (err) {
+        log(`Download log fejl: ${err.message}`, "err");
+      }
+    });
+
+    builderClearBtn.addEventListener("click", () => {
+      resetBuilder();
+      log("Problem builder ryddet.", "");
+    });
+
+    builderSaveBtn.addEventListener("click", () => {
+      try {
+        const problem = buildProblemFromBuilder();
+        customProblems.push(problem);
+        saveCustomProblems();
+        syncProblemList();
+        problemSelect.value = problem.id;
+        renderProblemMeta();
+        log(`Custom problem gemt: ${problem.name}`, "ok");
+      } catch (err) {
+        log(`Save builder fejl: ${err.message}`, "err");
+      }
+    });
+
+    builderUpdateBtn.addEventListener("click", () => {
+      try {
+        const selectedProblem = getSelectedProblem();
+        if (!selectedProblem) {
+          throw new Error("Vaelg et problem i listen for at kunne overskrive det.");
+        }
+
+        const customIndex = customProblems.findIndex((problem) => problem.id === selectedProblem.id);
+        if (customIndex === -1) {
+          throw new Error("Kun custom problems kan overskrives. Vaelg et gemt custom problem eller gem som nyt.");
+        }
+
+        const updatedProblem = buildUpdatedProblemFromBuilder(selectedProblem);
+        customProblems[customIndex] = updatedProblem;
+        saveCustomProblems();
+        syncProblemList();
+        problemSelect.value = updatedProblem.id;
+        renderProblemMeta();
+        showProblemInBuilder(updatedProblem);
+        log(`Custom problem opdateret: ${updatedProblem.name}`, "ok");
+      } catch (err) {
+        log(`Update builder fejl: ${err.message}`, "err");
+      }
+    });
+
+    builderCopyPayloadBtn.addEventListener("click", async () => {
+      try {
+        await copyBuilderPayload();
+      } catch (err) {
+        log(`Copy builder payload fejl: ${err.message}`, "err");
+      }
+    });
+
+    builderDownloadBtn.addEventListener("click", () => {
+      try {
+        downloadSavedProblems();
+      } catch (err) {
+        log(`Download builder fejl: ${err.message}`, "err");
+      }
+    });
+
+    builderResetSavedBtn.addEventListener("click", () => {
+      customProblems = [];
+      saveCustomProblems();
+      syncProblemList();
+      log("Alle gemte custom problems er ryddet.", "");
+    });
+
+    loadPersistedLogs();
     fitLogHeight();
     window.addEventListener("resize", fitLogHeight);
     if (window.visualViewport) {
@@ -521,6 +1215,10 @@
 
     loadProblems().catch((err) => {
       log(`Auto-load fejl: ${err.message}`, "err");
+    });
+    loadHoldSetup().catch((err) => {
+      builderSummaryEl.textContent = `Kunne ikke loade hold-layout: ${err.message}`;
+      log(`HoldSetup fejl: ${err.message}`, "err");
     });
   </script>
 </body>

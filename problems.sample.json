@@ -1,7 +1,7 @@
 [
-  { "id": "MB-001", "name": "Blue Static Warmup", "grade": "6A", "holdCount": 8, "setter": "Hall Test", "isBenchmark": false, "holds": ["A3", "B5", "C7", "D8", "E10", "F12", "G14", "H16"] },
-  { "id": "MB-002", "name": "Left Lock Pop", "grade": "6A+", "holdCount": 9, "setter": "Hall Test", "isBenchmark": false, "holds": ["A2", "B4", "C6", "D7", "E8", "F10", "G12", "H14", "I16"] },
-  { "id": "MB-003", "name": "Pocket Shuffle", "grade": "6B", "holdCount": 7, "setter": "Soren", "isBenchmark": true, "holds": ["B3", "C5", "D7", "E9", "F11", "G13", "H15"] },
+  { "id": "MB-001", "name": "Blue Static Warmup", "grade": "6A", "holdCount": 8, "setter": "Hall Test", "isBenchmark": false, "startHolds": ["A3", "B5"], "moveHolds": ["C7", "D8", "E10", "F12", "G14"], "topHolds": ["H16"], "holds": ["A3", "B5", "C7", "D8", "E10", "F12", "G14", "H16"] },
+  { "id": "MB-002", "name": "Left Lock Pop", "grade": "6A+", "holdCount": 9, "setter": "Hall Test", "isBenchmark": false, "startHolds": ["A2", "B4"], "moveHolds": ["C6", "D7", "E8", "F10", "G12", "H14"], "topHolds": ["I16"], "holds": ["A2", "B4", "C6", "D7", "E8", "F10", "G12", "H14", "I16"] },
+  { "id": "MB-003", "name": "Pocket Shuffle", "grade": "6B", "holdCount": 7, "setter": "Soren", "isBenchmark": true, "startHolds": ["B3", "C5"], "moveHolds": ["D7", "E9", "F11", "G13"], "topHolds": ["H15"], "holds": ["B3", "C5", "D7", "E9", "F11", "G13", "H15"] },
   { "id": "MB-004", "name": "Green Compression", "grade": "6B+", "holdCount": 10, "setter": "Soren", "isBenchmark": false, "holds": ["A4", "B6", "C8", "D9", "E11", "F12", "G13", "H14", "I15", "J16"] },
   { "id": "MB-005", "name": "Shoulder Roll", "grade": "6C", "holdCount": 8, "setter": "Mads", "isBenchmark": false, "holds": ["C2", "D4", "E6", "F8", "G9", "H11", "I13", "J15"] },
   { "id": "MB-006", "name": "Pinch to Crimp", "grade": "6C+", "holdCount": 9, "setter": "Mads", "isBenchmark": true, "holds": ["A5", "B7", "C9", "D10", "E12", "F13", "G14", "H15", "I16"] },
