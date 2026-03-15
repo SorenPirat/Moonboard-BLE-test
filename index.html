@@ -67,22 +67,22 @@
 
     .stack {
       display: grid;
-      gap: 14px;
-      margin-top: 16px;
+      gap: 20px;
+      margin-top: 20px;
     }
 
     .panel {
       background: rgba(11, 18, 32, 0.9);
       border: 1px solid var(--line);
       border-radius: 14px;
-      padding: 14px;
+      padding: 18px;
     }
 
     .row,
     .triple,
     .actions {
       display: grid;
-      gap: 10px;
+      gap: 14px;
     }
 
     .row {
@@ -115,8 +115,59 @@
     .check {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      min-height: 50px;
+      cursor: pointer;
+    }
+
+    .check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      padding: 0;
+      border-radius: 5px;
+      border: 1px solid #64748b;
+      background: #08101d;
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .check input[type="checkbox"]::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      transform: scale(0);
+      transition: transform 120ms ease;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+      background: #08101d;
+    }
+
+    .check input[type="checkbox"]:checked {
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.16);
+    }
+
+    .check input[type="checkbox"]:checked::before {
+      transform: scale(1);
+    }
+
+    .check:hover {
+      border-color: #64748b;
+    }
+
+    .check:has(input[type="checkbox"]:focus-visible) {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
     }
 
     input,
@@ -128,7 +179,7 @@
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text);
-      padding: 11px 12px;
+      padding: 12px 14px;
       font: inherit;
     }
 
@@ -166,7 +217,7 @@
 
     .quick-grid {
       display: grid;
-      gap: 10px;
+      gap: 14px;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
 
@@ -274,6 +325,19 @@ l#S2,S31,P42,E128#</textarea>
       </section>
 
       <section class="panel">
+        <h2>MoonBoard 2017 25° Tests</h2>
+        <div class="quick-grid">
+          <button class="secondary quick-payload" data-payload="l#E128#">2017 top enkelt</button>
+          <button class="secondary quick-payload" data-payload="l#S0,E128#">Bund + top</button>
+          <button class="secondary quick-payload" data-payload="l#S2,S31,P42,E128#">Klassisk 2017 test</button>
+          <button class="secondary quick-payload" data-payload="l#P64#">Midtpunkt test</button>
+          <button class="secondary quick-payload" data-payload="l#S2,S31,P64,P81,E128#">Kort sekvens</button>
+          <button class="secondary quick-payload" data-payload="l##">Sluk alle</button>
+        </div>
+        <p class="hint">Det her er bare hurtige 2017-orienterede testpayloads med den klassiske `S/P/E`-struktur. Brug dem til at se, om boardet reagerer mere konsekvent på simple eller sammensatte kommandoer.</p>
+      </section>
+
+      <section class="panel">
         <h2>Status</h2>
         <div id="status" class="status">Ikke forbundet.</div>
       </section>
@@ -315,7 +379,9 @@ l#S2,S31,P42,E128#</textarea>
     const DEFAULT_PAYLOADS = [
       "l#E128#",
       "l##",
-      "l#S2,S31,P42,E128#"
+      "l#S2,S31,P42,E128#",
+      "l#S0,E128#",
+      "l#P64#"
     ];
     const NUS_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     const NUS_RX_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
