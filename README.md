@@ -1,27 +1,26 @@
-# MoonBoard BLE Test (POC)
+# MoonBoard BLE Debug
 
-Minimal test-side til at validere:
-- Kan telefonen forbinde til en BLE-enhed?
-- Kan appen sende LED-kommandoer?
+Minimal Web Bluetooth-side til at:
+- forbinde til MoonBoard eller MoonBoard-lignende BLE-enheder
+- logge services og characteristics
+- lytte efter notify-data
+- sende forskellige payload-varianter for at finde boardets rigtige kommandoformat
 
-## Hvad du får
+## Funktioner
 
-- `index.html` med knapper til:
-  - `Connect BLE`
-  - `Send LED ON`
-  - `Send LED OFF`
-  - `Send PULSE`
-  - `Send Custom`
-  - `Load Problems` + problemvælger + `Top Problem (LED show)`
-- UUID-felter så du kan skifte service/characteristic uden at kode om.
-- Auto-discovery af writable BLE characteristic, hvis de indtastede UUID'er er forkerte.
-- `problems.sample.json` med 20 lokale testproblemer.
+- `Connect BLE` / `Disconnect`
+- valg af `Service UUID` og `Write Characteristic UUID`
+- automatisk forsøg på notify-listening, typisk på `6e400003-...`
+- quick payload-knapper til hurtige tests
+- multiline payload-felt, så flere kommandoer kan prøves i rækkefølge
+- valg mellem rå payload, `\n` og `\r\n`
+- copy/download af logs
 
 ## Kør lokalt
 
 Web Bluetooth kræver en sikker kontekst:
-- `https://` eller
 - `http://localhost`
+- eller `https://`
 
 Start en lokal server:
 
@@ -30,35 +29,19 @@ python3 -m http.server 8080
 ```
 
 Åbn derefter:
-- På samme maskine: `http://localhost:8080`
-- På telefon: brug HTTPS-tunnel (fx ngrok) eller test direkte i en Android-browser der tillader dit setup.
 
-## Vigtigt om mobil-support
+- `http://localhost:8080`
 
-- Android + Chrome: virker typisk.
-- iPhone Safari/PWA: Web Bluetooth er normalt ikke understøttet.
+## Anbefalet testflow
 
-Hvis iPhone er et krav, er næste skridt typisk en native app (React Native/Swift) eller en lokal gateway/controller.
+1. Tryk `Connect BLE`
+2. Bekræft i loggen hvilken write-characteristic der blev valgt
+3. Bekræft om notify-listening blev startet
+4. Send fx `l#E128#`
+5. Prøv igen med `Append \n`
+6. Prøv igen med `Append \r\n`
+7. Gem loggen, hvis boardet svarer tilbage eller reagerer forskelligt
 
-## Kommandoformat
+## Bemærk
 
-Eksempelknapper sender ASCII:
-- `LED:ON`
-- `LED:OFF`
-- `LED:PULSE`
-
-Juster formatet til det din BLE-modtager forventer.
-
-## Hurtig test-flow
-
-1. Start med `Scan all BLE devices` slået til.
-2. Indtast korrekt `Service UUID` og `Write Characteristic UUID`.
-3. Tryk `Connect BLE`.
-4. Tryk `Load Problems` og vælg et problem.
-5. Tryk `Show Problem LEDs` eller `Top Problem (LED show)`.
-6. Tjek at LED reagerer.
-7. Prøv disconnect/reconnect 10+ gange og noter fejl.
-
-Hvis enheden stadig ikke dukker op, er den ofte enten ikke BLE, eller også mangler browseren tilladelser til `Nearby devices` og `Location`.
-Hvis du får en "no services found"-fejl, er enheden typisk ikke eksponeret som BLE GATT til Web Bluetooth, eller også er de nødvendige services ikke tilladt.
-# Moonboard-BLE-test
+Projektet er nu bevidst skåret ned til BLE-debug. Problem-builder, lokale problems og øvrig MoonBoard-app-logik er fjernet fra UI og kode.

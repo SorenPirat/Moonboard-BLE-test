@@ -3,437 +3,358 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MoonBoard BLE Test</title>
+  <title>MoonBoard BLE Debug</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #111827;
+      --bg: #09111f;
+      --card: rgba(11, 18, 32, 0.92);
+      --panel: #0b1220;
+      --line: #334155;
       --text: #e5e7eb;
-      --muted: #9ca3af;
-      --accent: #22c55e;
-      --danger: #ef4444;
+      --muted: #94a3b8;
+      --accent: #16a34a;
+      --accent-2: #2563eb;
+      --danger: #dc2626;
+      --warn: #f59e0b;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2937, var(--bg));
-      color: var(--text);
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 16px;
+      padding: 18px;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(22, 163, 74, 0.14), transparent 28%),
+        linear-gradient(180deg, #0f172a 0%, var(--bg) 100%);
     }
-    .card {
-      width: min(680px, 100%);
-      background: rgba(17, 24, 39, 0.94);
-      border: 1px solid #374151;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+
+    .shell {
+      width: min(860px, 100%);
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(10px);
     }
+
+    h1, h2 {
+      margin: 0;
+    }
+
     h1 {
-      margin: 0 0 12px;
-      font-size: 1.3rem;
+      font-size: 1.45rem;
+      letter-spacing: 0.01em;
     }
+
+    h2 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
     p {
-      margin: 8px 0;
+      margin: 8px 0 0;
       color: var(--muted);
+      line-height: 1.5;
     }
-    .row {
+
+    .stack {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .panel {
+      background: rgba(11, 18, 32, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .row,
+    .triple,
+    .actions {
       display: grid;
       gap: 10px;
-      margin: 12px 0;
     }
-    @media (min-width: 700px) {
-      .row {
-        grid-template-columns: repeat(2, 1fr);
+
+    .row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .triple {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 720px) {
+      .row,
+      .triple,
+      .actions {
+        grid-template-columns: 1fr;
       }
     }
+
     label {
       display: grid;
       gap: 6px;
       font-size: 0.9rem;
+      color: var(--muted);
     }
-    label.check {
+
+    .check {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    label.check input[type="checkbox"] {
-      margin: 0;
-      width: 16px;
-      height: 16px;
-      padding: 0;
-      flex: 0 0 auto;
-    }
-    input, button, textarea, select {
-      background: #0b1220;
       color: var(--text);
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 0.95rem;
     }
+
+    input,
+    textarea,
+    button,
+    select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      padding: 11px 12px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 104px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
     button {
       cursor: pointer;
-      background: #1f2937;
+      font-weight: 600;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
     }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: #64748b;
+    }
+
     button.primary {
-      background: #14532d;
-      border-color: #166534;
+      background: rgba(22, 163, 74, 0.18);
+      border-color: rgba(22, 163, 74, 0.5);
     }
+
+    button.secondary {
+      background: rgba(37, 99, 235, 0.18);
+      border-color: rgba(37, 99, 235, 0.45);
+    }
+
     button.warn {
-      background: #7f1d1d;
-      border-color: #991b1b;
+      background: rgba(220, 38, 38, 0.18);
+      border-color: rgba(220, 38, 38, 0.45);
     }
-    .actions {
+
+    .quick-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     }
-    .actions-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .checks-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .panel {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #334155;
-    }
+
     .hint {
       font-size: 0.88rem;
       color: var(--muted);
+      margin-top: 8px;
     }
-    .board-wrap {
-      margin-top: 12px;
-      overflow-x: auto;
-      border: 1px solid #334155;
+
+    .status {
+      padding: 12px;
       border-radius: 12px;
-      background: #0b1220;
-      padding: 10px;
-    }
-    .board-grid {
-      display: grid;
-      grid-template-columns: 28px repeat(11, minmax(34px, 1fr));
-      gap: 6px;
-      min-width: 470px;
-      align-items: center;
-    }
-    .axis-label {
-      text-align: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      min-height: 48px;
       color: var(--muted);
-      font-size: 0.78rem;
     }
-    .hold-btn {
-      min-height: 34px;
-      padding: 6px 4px;
-      font-size: 0.72rem;
-      border-radius: 999px;
-      border: 1px solid #334155;
-      background: #182133;
+
+    .status.ok {
+      color: #86efac;
     }
-    .hold-btn.start {
-      background: #166534;
-      border-color: #22c55e;
+
+    .status.err {
+      color: #fca5a5;
     }
-    .hold-btn.move {
-      background: #1d4ed8;
-      border-color: #3b82f6;
-    }
-    .hold-btn.top {
-      background: #991b1b;
-      border-color: #ef4444;
-    }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
-    .legend span::before {
-      content: "";
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      margin-right: 6px;
-      vertical-align: middle;
-      background: #475569;
-    }
-    .legend .start::before { background: #22c55e; }
-    .legend .move::before { background: #3b82f6; }
-    .legend .top::before { background: #ef4444; }
-    .summary-box {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #0b1220;
-      border: 1px solid #334155;
-      color: var(--muted);
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    #status {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #0b1220;
-      border: 1px solid #334155;
-      color: var(--muted);
-      min-height: 20px;
-    }
+
     pre {
-      background: #0b1220;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px;
-      overflow-x: auto;
-      max-height: min(42vh, 320px);
-      min-height: 120px;
+      margin: 0;
+      padding: 12px;
+      min-height: 200px;
+      max-height: 42vh;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #08101d;
+      color: #dbeafe;
       white-space: pre-wrap;
       word-break: break-word;
-      font-size: clamp(12px, 2.8vw, 14px);
-      line-height: 1.35;
+      line-height: 1.4;
+      font-size: 13px;
     }
-    .ok { color: var(--accent); }
-    .err { color: var(--danger); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>MoonBoard BLE Test</h1>
-    <p>Denne side bruger Web Bluetooth (typisk Android + Chrome). iPhone Safari/PWA understøtter normalt ikke Web Bluetooth.</p>
-    <div class="row">
-      <label>
-        Service UUID
-        <input id="serviceUuid" value="0000ffe0-0000-1000-8000-00805f9b34fb" />
-      </label>
-      <label>
-        Write Characteristic UUID
-        <input id="charUuid" value="0000ffe1-0000-1000-8000-00805f9b34fb" />
-      </label>
-    </div>
-    <label class="check">
-      <input id="scanAll" type="checkbox" checked />
-      Scan all BLE devices (anbefalet til fejlsøgning)
-    </label>
-    <div class="actions">
-      <button id="connectBtn" class="primary">Connect BLE</button>
-      <button id="disconnectBtn">Disconnect</button>
-    </div>
-    <div class="actions-3">
-      <button id="onBtn">Send Test Problem A</button>
-      <button id="offBtn">Send Empty Payload</button>
-      <button id="pulseBtn">Send Test Problem B</button>
-    </div>
-    <label style="margin-top: 10px;">
-      Custom command (MoonBoard payload)
-      <input id="customCommand" placeholder="fx: l#S2,S31,P42,E128#" />
-    </label>
-    <label class="check">
-      <input id="appendNewline" type="checkbox" />
-      Append newline ved send (nyttigt til line-based BLE UART firmware)
-    </label>
-    <div class="actions">
-      <button id="sendCustomBtn">Send Custom</button>
-      <button id="clearLogBtn" class="warn">Clear Log</button>
-    </div>
-    <div class="actions">
-      <button id="copyLogBtn">Copy Logs</button>
-      <button id="downloadLogBtn">Download Logs</button>
-    </div>
-    <hr style="border-color:#334155; margin:16px 0;" />
-    <h2 style="margin:0; font-size:1.05rem;">Local Problem Test</h2>
-    <p>Loader lokale testproblemer fra <code>problems.sample.json</code>.</p>
-    <div class="actions">
-      <button id="loadProblemsBtn">Load Problems</button>
-      <button id="sendProblemBtn">Show Problem LEDs</button>
-    </div>
-    <label style="margin-top: 10px;">
-      Problem
-      <select id="problemSelect">
-        <option value="">Ingen problemer loaded endnu</option>
-      </select>
-    </label>
-    <div id="problemMeta" style="margin-top:8px; color:#9ca3af; font-size:0.92rem;">Vælg et problem for detaljer.</div>
-    <div class="actions">
-      <button id="topProblemBtn" class="primary">Top Problem (LED show)</button>
-      <button id="copyPayloadBtn">Copy LED Payload</button>
-    </div>
-    <div class="panel">
-      <h2 style="margin:0; font-size:1.05rem;">Problem Builder</h2>
-      <p>Tryk pa greb for at cykle mellem ingen, start, move og top. Gemte problemer bliver lagt ind i problemlisten lokalt pa mobilen.</p>
-      <div class="row">
-        <label>
-          Setup
-          <select id="builderSetup"></select>
-        </label>
-        <label>
-          Problemnavn
-          <input id="builderName" placeholder="fx: Hall Test 1" />
-        </label>
-      </div>
-      <div class="row">
-        <label>
-          Grade
-          <input id="builderGrade" value="6A+" />
-        </label>
-        <label>
-          Setter
-          <input id="builderSetter" value="Mobile Builder" />
-        </label>
-      </div>
-      <div class="checks-2">
+  <main class="shell">
+    <h1>MoonBoard BLE Debug</h1>
+    <p>Minimal PWA til at forbinde via Web Bluetooth, lytte efter notify-data og sende forskellige payload-varianter for at finde boardets rigtige protokol.</p>
+
+    <div class="stack">
+      <section class="panel">
+        <h2>BLE Forbindelse</h2>
+        <div class="row">
+          <label>
+            Service UUID
+            <input id="serviceUuid" value="6e400001-b5a3-f393-e0a9-e50e24dcca9e" />
+          </label>
+          <label>
+            Write Characteristic UUID
+            <input id="charUuid" value="6e400002-b5a3-f393-e0a9-e50e24dcca9e" />
+          </label>
+        </div>
         <label class="check">
-          <input id="builderBenchmark" type="checkbox" />
-          Benchmark
+          <input id="scanAll" type="checkbox" checked />
+          Scan all BLE devices
         </label>
-        <label class="check">
-          <input id="builderLivePreview" type="checkbox" />
-          Live preview pa boardet mens jeg bygger
+        <div class="actions">
+          <button id="connectBtn" class="primary">Connect BLE</button>
+          <button id="disconnectBtn">Disconnect</button>
+        </div>
+        <p class="hint">Ved connect logger siden alle fundne characteristics, vælger en writable characteristic og forsøger at starte notify på fx `6e400003...`.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Payload Test</h2>
+        <div class="quick-grid">
+          <button class="secondary quick-payload" data-payload="l#E128#">Send `l#E128#`</button>
+          <button class="secondary quick-payload" data-payload="l##">Send `l##`</button>
+          <button class="secondary quick-payload" data-payload="l#S2,S31,P42,E128#">Send lille test</button>
+          <button class="secondary quick-payload" data-payload="LED:ON">Send `LED:ON`</button>
+          <button class="secondary quick-payload" data-payload="LED:OFF">Send `LED:OFF`</button>
+          <button class="secondary quick-payload" data-payload="PING">Send `PING`</button>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <label class="check">
+            <input id="appendNewline" type="checkbox" />
+            Append `\n`
+          </label>
+          <label class="check">
+            <input id="appendCrLf" type="checkbox" />
+            Append `\r\n`
+          </label>
+        </div>
+        <label style="margin-top: 12px;">
+          Custom payloads, én per linje
+          <textarea id="payloadInput">l#E128#
+l##
+l#S2,S31,P42,E128#</textarea>
         </label>
-      </div>
-      <div class="actions-3">
-        <button id="builderClearBtn">Clear Builder</button>
-        <button id="builderSaveBtn" class="primary">Save Problem</button>
-        <button id="builderCopyPayloadBtn">Copy Builder Payload</button>
-      </div>
-      <div class="actions">
-        <button id="builderUpdateBtn">Update Selected Problem</button>
-        <button id="builderDownloadBtn">Download Saved Problems</button>
-        <button id="builderResetSavedBtn" class="warn">Clear Saved Problems</button>
-      </div>
-      <div id="builderSummary" class="summary-box">Loader hold-layout...</div>
-      <div class="legend">
-        <span class="start">Start</span>
-        <span class="move">Move</span>
-        <span class="top">Top</span>
-      </div>
-      <div class="board-wrap">
-        <div id="builderBoard" class="board-grid"></div>
-      </div>
-      <div class="hint">Tip: Download saved problems eller copy logs, sa du kan tage alt med hjem fra hallen.</div>
+        <div class="triple">
+          <button id="sendSelectedBtn" class="primary">Send markeret linje</button>
+          <button id="sendAllBtn">Send alle linjer</button>
+          <button id="clearPayloadBtn">Nulstil payloads</button>
+        </div>
+        <p class="hint">Hvis boardet læser line-based BLE UART, så prøv først med `Append \n`, derefter `Append \r\n`.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Status</h2>
+        <div id="status" class="status">Ikke forbundet.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Logs</h2>
+        <div class="triple" style="margin-bottom: 10px;">
+          <button id="clearLogBtn" class="warn">Clear log</button>
+          <button id="copyLogBtn">Copy logs</button>
+          <button id="downloadLogBtn">Download logs</button>
+        </div>
+        <pre id="log"></pre>
+      </section>
     </div>
-    <div id="status">Ikke forbundet.</div>
-    <pre id="log"></pre>
-  </div>
+  </main>
 
   <script>
     const serviceUuidInput = document.getElementById("serviceUuid");
     const charUuidInput = document.getElementById("charUuid");
     const scanAllInput = document.getElementById("scanAll");
-    const customCommandInput = document.getElementById("customCommand");
     const appendNewlineInput = document.getElementById("appendNewline");
-    const problemSelect = document.getElementById("problemSelect");
-    const problemMeta = document.getElementById("problemMeta");
+    const appendCrLfInput = document.getElementById("appendCrLf");
+    const payloadInput = document.getElementById("payloadInput");
     const statusEl = document.getElementById("status");
     const logEl = document.getElementById("log");
-    const builderSetupSelect = document.getElementById("builderSetup");
-    const builderNameInput = document.getElementById("builderName");
-    const builderGradeInput = document.getElementById("builderGrade");
-    const builderSetterInput = document.getElementById("builderSetter");
-    const builderBenchmarkInput = document.getElementById("builderBenchmark");
-    const builderLivePreviewInput = document.getElementById("builderLivePreview");
-    const builderSummaryEl = document.getElementById("builderSummary");
-    const builderBoardEl = document.getElementById("builderBoard");
 
     const connectBtn = document.getElementById("connectBtn");
     const disconnectBtn = document.getElementById("disconnectBtn");
-    const onBtn = document.getElementById("onBtn");
-    const offBtn = document.getElementById("offBtn");
-    const pulseBtn = document.getElementById("pulseBtn");
-    const sendCustomBtn = document.getElementById("sendCustomBtn");
+    const sendSelectedBtn = document.getElementById("sendSelectedBtn");
+    const sendAllBtn = document.getElementById("sendAllBtn");
+    const clearPayloadBtn = document.getElementById("clearPayloadBtn");
     const clearLogBtn = document.getElementById("clearLogBtn");
     const copyLogBtn = document.getElementById("copyLogBtn");
     const downloadLogBtn = document.getElementById("downloadLogBtn");
-    const loadProblemsBtn = document.getElementById("loadProblemsBtn");
-    const sendProblemBtn = document.getElementById("sendProblemBtn");
-    const topProblemBtn = document.getElementById("topProblemBtn");
-    const copyPayloadBtn = document.getElementById("copyPayloadBtn");
-    const builderClearBtn = document.getElementById("builderClearBtn");
-    const builderSaveBtn = document.getElementById("builderSaveBtn");
-    const builderUpdateBtn = document.getElementById("builderUpdateBtn");
-    const builderCopyPayloadBtn = document.getElementById("builderCopyPayloadBtn");
-    const builderDownloadBtn = document.getElementById("builderDownloadBtn");
-    const builderResetSavedBtn = document.getElementById("builderResetSavedBtn");
+    const quickPayloadButtons = [...document.querySelectorAll(".quick-payload")];
 
-    let device = null;
-    let server = null;
-    let characteristic = null;
-    let notifyCharacteristic = null;
-    let notifyHandler = null;
-    let disconnectHandler = null;
-    let problems = [];
-    let sampleProblems = [];
-    let customProblems = [];
-    let holdSetupData = {};
-    let builderSelection = {};
-    let builderPreviewTimer = null;
-    const LOG_MAX_LINES = 120;
+    const LOG_MAX_LINES = 220;
     const LOG_STORAGE_KEY = "moonboard-ble-log";
-    const CUSTOM_PROBLEMS_STORAGE_KEY = "moonboard-custom-problems";
-    const TEST_PAYLOADS = {
-      on: "l#S2,S31,P42,P64,P81,P96,P121,E128#",
-      off: "l##",
-      pulse: "l#S33,S40,P65,P80,P97,P120,E129#"
-    };
+    const DEFAULT_PAYLOADS = [
+      "l#E128#",
+      "l##",
+      "l#S2,S31,P42,E128#"
+    ];
     const NUS_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     const NUS_RX_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
     const NUS_TX_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    const COMMON_SERVICE_UUIDS = [
+      NUS_SERVICE_UUID,
+      "0000ffe0-0000-1000-8000-00805f9b34fb",
+      "00001800-0000-1000-8000-00805f9b34fb",
+      "00001801-0000-1000-8000-00805f9b34fb",
+      "0000180a-0000-1000-8000-00805f9b34fb",
+      "0000180f-0000-1000-8000-00805f9b34fb"
+    ];
     const COMMON_WRITE_CHAR_UUIDS = [
-      "0000ffe1-0000-1000-8000-00805f9b34fb",
-      NUS_RX_CHAR_UUID
+      NUS_RX_CHAR_UUID,
+      "0000ffe1-0000-1000-8000-00805f9b34fb"
     ];
     const COMMON_NOTIFY_CHAR_UUIDS = [
-      "0000ffe1-0000-1000-8000-00805f9b34fb",
-      NUS_TX_CHAR_UUID
-    ];
-    const BOARD_COLUMNS = "ABCDEFGHIJK".split("");
-    const BOARD_ROWS = Array.from({ length: 18 }, (_, index) => 18 - index);
-    const COMMON_SERVICE_UUIDS = [
-      "00001800-0000-1000-8000-00805f9b34fb", // Generic Access
-      "00001801-0000-1000-8000-00805f9b34fb", // Generic Attribute
-      "0000180a-0000-1000-8000-00805f9b34fb", // Device Information
-      "0000180f-0000-1000-8000-00805f9b34fb", // Battery
-      "0000ffe0-0000-1000-8000-00805f9b34fb", // HM-10 style UART
-      NUS_SERVICE_UUID, // Nordic UART service
-      "0000fff0-0000-1000-8000-00805f9b34fb"
+      NUS_TX_CHAR_UUID,
+      "0000ffe1-0000-1000-8000-00805f9b34fb"
     ];
 
-    function characteristicPropertiesSummary(c) {
-      const props = c?.properties || {};
-      return [
-        props.broadcast && "broadcast",
-        props.read && "read",
-        props.writeWithoutResponse && "writeWithoutResponse",
-        props.write && "write",
-        props.notify && "notify",
-        props.indicate && "indicate",
-        props.authenticatedSignedWrites && "authenticatedSignedWrites",
-        props.reliableWrite && "reliableWrite",
-        props.writableAuxiliaries && "writableAuxiliaries"
-      ].filter(Boolean).join(", ") || "ingen properties";
-    }
+    let device = null;
+    let server = null;
+    let writeCharacteristic = null;
+    let notifyCharacteristic = null;
+    let notifyHandler = null;
+    let disconnectHandler = null;
 
     function now() {
       return new Date().toLocaleTimeString("da-DK");
     }
 
-    function log(msg, cls = "") {
-      const prefix = `[${now()}] `;
-      const line = `${prefix}${msg}`;
+    function setStatus(message, cls = "") {
+      statusEl.textContent = message;
+      statusEl.className = `status${cls ? ` ${cls}` : ""}`;
+    }
+
+    function log(message, cls = "") {
+      const line = `[${now()}] ${message}`;
       const lines = logEl.textContent ? logEl.textContent.split("\n") : [];
       lines.push(line);
       if (lines.length > LOG_MAX_LINES) {
@@ -442,10 +363,7 @@
       logEl.textContent = lines.join("\n");
       localStorage.setItem(LOG_STORAGE_KEY, logEl.textContent);
       logEl.scrollTop = logEl.scrollHeight;
-      if (cls) {
-        statusEl.className = cls;
-      }
-      statusEl.textContent = msg;
+      setStatus(message, cls);
     }
 
     function loadPersistedLogs() {
@@ -458,104 +376,46 @@
     }
 
     function buildLogExportText() {
-      const lines = logEl.textContent.trim();
-      const header = [
-        "MoonBoard BLE Test Logs",
+      return [
+        "MoonBoard BLE Debug Logs",
         `Exported: ${new Date().toLocaleString("da-DK")}`,
         `User agent: ${navigator.userAgent}`,
-        ""
+        "",
+        logEl.textContent.trim()
       ].join("\n");
-      return `${header}${lines}`;
     }
 
-    async function copyLogs() {
-      const text = buildLogExportText();
-      await navigator.clipboard.writeText(text);
-      log("Logs kopieret til clipboard.", "ok");
+    function characteristicPropertiesSummary(characteristic) {
+      const props = characteristic?.properties || {};
+      return [
+        props.read && "read",
+        props.writeWithoutResponse && "writeWithoutResponse",
+        props.write && "write",
+        props.notify && "notify",
+        props.indicate && "indicate"
+      ].filter(Boolean).join(", ") || "ingen properties";
     }
 
-    function downloadLogs() {
-      const text = buildLogExportText();
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `moonboard-ble-log-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      log("Logs downloadet som tekstfil.", "ok");
+    function isWritable(characteristic) {
+      return characteristic?.properties?.write || characteristic?.properties?.writeWithoutResponse;
     }
 
-    function getSavedCustomProblems() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(CUSTOM_PROBLEMS_STORAGE_KEY) || "[]");
-        return Array.isArray(saved) ? saved : [];
-      } catch (_err) {
-        return [];
+    function isNotifiable(characteristic) {
+      return characteristic?.properties?.notify || characteristic?.properties?.indicate;
+    }
+
+    function buildOptionalServices(serviceUuid) {
+      const uuids = [...COMMON_SERVICE_UUIDS];
+      if (serviceUuid) {
+        uuids.push(serviceUuid);
       }
-    }
-
-    function saveCustomProblems() {
-      localStorage.setItem(CUSTOM_PROBLEMS_STORAGE_KEY, JSON.stringify(customProblems, null, 2));
-    }
-
-    function syncProblemList() {
-      const previousValue = problemSelect.value;
-      problems = [...sampleProblems, ...customProblems];
-      problemSelect.innerHTML = "";
-
-      const first = document.createElement("option");
-      first.value = "";
-      first.textContent = problems.length ? "Vaelg problem" : "Ingen problemer loaded endnu";
-      problemSelect.appendChild(first);
-
-      for (const p of problems) {
-        const option = document.createElement("option");
-        option.value = p.id;
-        option.textContent = `${p.name} (${p.grade})`;
-        problemSelect.appendChild(option);
-      }
-
-      if (problems.some((p) => p.id === previousValue)) {
-        problemSelect.value = previousValue;
-      }
-      renderProblemMeta();
-    }
-
-    function fitLogHeight() {
-      const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      const target = Math.max(120, Math.min(360, Math.floor(viewportHeight * 0.35)));
-      logEl.style.maxHeight = `${target}px`;
-    }
-
-    function ensureWebBluetooth() {
-      if (!navigator.bluetooth) {
-        throw new Error("Web Bluetooth er ikke tilgængelig i denne browser.");
-      }
-    }
-
-    function buildOptionalServices(userServiceUuid) {
-      const all = [...COMMON_SERVICE_UUIDS];
-      if (userServiceUuid) {
-        all.push(userServiceUuid);
-      }
-      return [...new Set(all.map((s) => s.toLowerCase()))];
-    }
-
-    function isWritable(c) {
-      return c?.properties?.write || c?.properties?.writeWithoutResponse;
-    }
-
-    function isNotifiable(c) {
-      return c?.properties?.notify || c?.properties?.indicate;
+      return [...new Set(uuids.map((uuid) => uuid.toLowerCase()))];
     }
 
     function toHexString(dataView) {
       const bytes = [];
-      for (let i = 0; i < dataView.byteLength; i += 1) {
-        bytes.push(dataView.getUint8(i).toString(16).padStart(2, "0"));
+      for (let index = 0; index < dataView.byteLength; index += 1) {
+        bytes.push(dataView.getUint8(index).toString(16).padStart(2, "0"));
       }
       return bytes.join(" ");
     }
@@ -564,23 +424,67 @@
       if (!dataView || dataView.byteLength === 0) {
         return { text: "", hex: "" };
       }
-
       const bytes = new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
       const text = new TextDecoder().decode(bytes).replace(/\r/g, "\\r").replace(/\n/g, "\\n");
       return { text, hex: toHexString(dataView) };
     }
 
-    function noServicesErrorText(device) {
-      const maybeClassic = !device?.uuids || device.uuids.length === 0;
-      if (maybeClassic) {
-        return "Ingen services fundet. Enheden kan være Bluetooth Classic (ikke BLE-GATT), eller også er dens GATT-services ikke whitelisted i requestDevice optionalServices.";
+    function normalizePayload(rawPayload) {
+      if (appendCrLfInput.checked) {
+        return rawPayload.endsWith("\r\n") ? rawPayload : `${rawPayload}\r\n`;
       }
-      return "Ingen services fundet. Prøv igen med korrekt Service UUID, eller tilføj boardets service i optionalServices-listen før forbindelsen oprettes.";
+      if (appendNewlineInput.checked) {
+        return rawPayload.endsWith("\n") ? rawPayload : `${rawPayload}\n`;
+      }
+      return rawPayload;
+    }
+
+    function getSelectedPayloadLine() {
+      const { selectionStart, selectionEnd, value } = payloadInput;
+      if (selectionStart === selectionEnd) {
+        const currentLine = value
+          .slice(0, selectionStart)
+          .split("\n")
+          .pop();
+        return currentLine.trim();
+      }
+
+      return value.slice(selectionStart, selectionEnd).trim();
+    }
+
+    function getAllPayloadLines() {
+      return payloadInput.value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+
+    function resetPayloads() {
+      payloadInput.value = DEFAULT_PAYLOADS.join("\n");
+    }
+
+    async function copyLogs() {
+      await navigator.clipboard.writeText(buildLogExportText());
+      log("Logs kopieret til clipboard.", "ok");
+    }
+
+    function downloadLogs() {
+      const blob = new Blob([buildLogExportText()], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `moonboard-ble-debug-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      log("Logs downloadet som tekstfil.", "ok");
     }
 
     function resetConnectionState({ keepDevice = false } = {}) {
       server = null;
-      characteristic = null;
+      writeCharacteristic = null;
+
       if (notifyCharacteristic && notifyHandler) {
         try {
           notifyCharacteristic.removeEventListener("characteristicvaluechanged", notifyHandler);
@@ -588,88 +492,18 @@
           // Ignorer cleanup-fejl.
         }
       }
+
       notifyCharacteristic = null;
       notifyHandler = null;
+
       if (!keepDevice && device && disconnectHandler) {
         device.removeEventListener("gattserverdisconnected", disconnectHandler);
       }
+
       if (!keepDevice) {
         device = null;
         disconnectHandler = null;
       }
-    }
-
-    async function findWritableCharacteristic(services, preferredCharUuid) {
-      const normalizedPreferred = preferredCharUuid ? preferredCharUuid.toLowerCase() : "";
-      const preferredCandidates = [...new Set([normalizedPreferred, ...COMMON_WRITE_CHAR_UUIDS].filter(Boolean))];
-
-      for (const preferredUuid of preferredCandidates) {
-        for (const service of services) {
-          const chars = await service.getCharacteristics();
-          for (const c of chars) {
-            if (c.uuid.toLowerCase() === preferredUuid && isWritable(c)) {
-              return { service, characteristic: c };
-            }
-          }
-        }
-      }
-
-      for (const service of services) {
-        const chars = await service.getCharacteristics();
-        for (const c of chars) {
-          if (isWritable(c)) {
-            return { service, characteristic: c };
-          }
-        }
-      }
-
-      return null;
-    }
-
-    async function findNotifyCharacteristic(services) {
-      for (const preferredUuid of COMMON_NOTIFY_CHAR_UUIDS) {
-        for (const service of services) {
-          const chars = await service.getCharacteristics();
-          for (const c of chars) {
-            if (c.uuid.toLowerCase() === preferredUuid && isNotifiable(c)) {
-              return c;
-            }
-          }
-        }
-      }
-
-      for (const service of services) {
-        const chars = await service.getCharacteristics();
-        for (const c of chars) {
-          if (isNotifiable(c)) {
-            return c;
-          }
-        }
-      }
-
-      return null;
-    }
-
-    async function setupNotifications(services) {
-      const foundNotifyCharacteristic = await findNotifyCharacteristic(services);
-      if (!foundNotifyCharacteristic) {
-        log("Ingen notify/indicate characteristic fundet.", "");
-        return;
-      }
-
-      await foundNotifyCharacteristic.startNotifications();
-      notifyCharacteristic = foundNotifyCharacteristic;
-      notifyHandler = (event) => {
-        const dataView = event.target?.value;
-        const { text, hex } = decodeNotifyValue(dataView);
-        if (text) {
-          log(`Notify fra ${foundNotifyCharacteristic.uuid}: text=${JSON.stringify(text)} | hex=${hex}`, "ok");
-          return;
-        }
-        log(`Notify fra ${foundNotifyCharacteristic.uuid}: hex=${hex}`, "ok");
-      };
-      foundNotifyCharacteristic.addEventListener("characteristicvaluechanged", notifyHandler);
-      log(`Notify lytter aktiv på ${foundNotifyCharacteristic.uuid} | props=${characteristicPropertiesSummary(foundNotifyCharacteristic)}`, "ok");
     }
 
     async function ensureConnectedServer() {
@@ -695,9 +529,9 @@
     async function getPrimaryServicesWithReconnect() {
       try {
         return await server.getPrimaryServices();
-      } catch (err) {
-        if (!/disconnected/i.test(err.message || "")) {
-          throw err;
+      } catch (error) {
+        if (!/disconnected/i.test(error.message || "")) {
+          throw error;
         }
 
         log("GATT-server blev afbrudt under service discovery. Prøver at reconnecte...", "err");
@@ -707,31 +541,103 @@
       }
     }
 
+    async function findWritableCharacteristic(services, preferredCharUuid) {
+      const preferredCandidates = [
+        preferredCharUuid?.toLowerCase(),
+        ...COMMON_WRITE_CHAR_UUIDS
+      ].filter(Boolean);
+
+      for (const preferredUuid of [...new Set(preferredCandidates)]) {
+        for (const service of services) {
+          const characteristics = await service.getCharacteristics();
+          for (const candidate of characteristics) {
+            if (candidate.uuid.toLowerCase() === preferredUuid && isWritable(candidate)) {
+              return { service, characteristic: candidate };
+            }
+          }
+        }
+      }
+
+      for (const service of services) {
+        const characteristics = await service.getCharacteristics();
+        for (const candidate of characteristics) {
+          if (isWritable(candidate)) {
+            return { service, characteristic: candidate };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    async function findNotifyCharacteristic(services) {
+      for (const preferredUuid of COMMON_NOTIFY_CHAR_UUIDS) {
+        for (const service of services) {
+          const characteristics = await service.getCharacteristics();
+          for (const candidate of characteristics) {
+            if (candidate.uuid.toLowerCase() === preferredUuid && isNotifiable(candidate)) {
+              return candidate;
+            }
+          }
+        }
+      }
+
+      for (const service of services) {
+        const characteristics = await service.getCharacteristics();
+        for (const candidate of characteristics) {
+          if (isNotifiable(candidate)) {
+            return candidate;
+          }
+        }
+      }
+
+      return null;
+    }
+
+    async function setupNotifications(services) {
+      const candidate = await findNotifyCharacteristic(services);
+      if (!candidate) {
+        log("Ingen notify/indicate characteristic fundet.", "");
+        return;
+      }
+
+      await candidate.startNotifications();
+      notifyCharacteristic = candidate;
+      notifyHandler = (event) => {
+        const value = event.target?.value;
+        const { text, hex } = decodeNotifyValue(value);
+        if (text) {
+          log(`Notify fra ${candidate.uuid}: text=${JSON.stringify(text)} | hex=${hex}`, "ok");
+          return;
+        }
+        log(`Notify fra ${candidate.uuid}: hex=${hex}`, "ok");
+      };
+      candidate.addEventListener("characteristicvaluechanged", notifyHandler);
+      log(`Notify lytter aktiv på ${candidate.uuid} | props=${characteristicPropertiesSummary(candidate)}`, "ok");
+    }
+
     async function connect() {
-      ensureWebBluetooth();
+      if (!navigator.bluetooth) {
+        throw new Error("Web Bluetooth er ikke tilgængelig i denne browser.");
+      }
 
       const serviceUuid = serviceUuidInput.value.trim();
       const charUuid = charUuidInput.value.trim();
-      const scanAll = scanAllInput.checked;
       const optionalServices = buildOptionalServices(serviceUuid);
 
       if (!device) {
-        const requestOptions = scanAll
+        const requestOptions = scanAllInput.checked
           ? { acceptAllDevices: true, optionalServices }
-          : { filters: [{ services: [serviceUuid || COMMON_SERVICE_UUIDS[0]] }], optionalServices };
+          : { filters: [{ services: [serviceUuid || NUS_SERVICE_UUID] }], optionalServices };
 
         device = await navigator.bluetooth.requestDevice(requestOptions);
         log(`Valgt enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
-        if (Array.isArray(device.uuids) && device.uuids.length) {
-          log(`Advertised UUIDs: ${device.uuids.join(", ")}`);
-        } else {
-          log("Advertised UUIDs: ingen (kan tyde på Classic BT eller skjult advertising-data)");
-        }
       } else {
         log(`Genbruger enhed: ${device.name || "ukendt"}${device.id ? ` (id=${device.id})` : ""}`);
       }
 
       resetConnectionState({ keepDevice: true });
+
       if (!disconnectHandler) {
         disconnectHandler = () => {
           resetConnectionState({ keepDevice: true });
@@ -743,656 +649,145 @@
       await ensureConnectedServer();
       const services = await getPrimaryServicesWithReconnect();
       if (!services.length) {
-        throw new Error(noServicesErrorText(device));
+        throw new Error("Ingen services fundet på GATT-serveren.");
       }
-      log(`Fundne services: ${services.map((s) => s.uuid).join(", ")}`);
+
+      log(`Fundne services: ${services.map((service) => service.uuid).join(", ")}`);
       for (const service of services) {
-        const chars = await service.getCharacteristics();
-        if (!chars.length) {
+        const characteristics = await service.getCharacteristics();
+        if (!characteristics.length) {
           log(`Service ${service.uuid}: ingen characteristics`);
           continue;
         }
-        for (const c of chars) {
-          log(`Characteristic ${c.uuid} | props=${characteristicPropertiesSummary(c)}`);
+        for (const candidate of characteristics) {
+          log(`Characteristic ${candidate.uuid} | props=${characteristicPropertiesSummary(candidate)}`);
         }
       }
 
-      let selectedService = null;
-      let selectedChar = null;
-
-      if (serviceUuid && charUuid) {
-        try {
-          const service = await server.getPrimaryService(serviceUuid);
-          const char = await service.getCharacteristic(charUuid);
-          if (isWritable(char)) {
-            selectedService = service;
-            selectedChar = char;
-          }
-        } catch (_err) {
-          log("Kunne ikke bruge angivet service/characteristic. Prøver auto-discovery...");
-        }
+      const found = await findWritableCharacteristic(services, charUuid);
+      if (!found) {
+        throw new Error("Ingen writable characteristic fundet.");
       }
 
-      if (!selectedChar && serviceUuid.toLowerCase() === NUS_SERVICE_UUID) {
-        try {
-          const service = await server.getPrimaryService(NUS_SERVICE_UUID);
-          const char = await service.getCharacteristic(NUS_RX_CHAR_UUID);
-          if (isWritable(char)) {
-            selectedService = service;
-            selectedChar = char;
-            log("Nordic UART fundet: bruger RX/write characteristic 6e400002-...");
-          }
-        } catch (_err) {
-          // Falder tilbage til auto-discovery nedenfor.
-        }
-      }
-
-      if (!selectedChar) {
-        const found = await findWritableCharacteristic(services, charUuid);
-        if (!found) {
-          throw new Error("Ingen writable characteristic fundet. Angiv korrekt UUID manuelt.");
-        }
-        selectedService = found.service;
-        selectedChar = found.characteristic;
-      }
-
-      characteristic = selectedChar;
-      serviceUuidInput.value = selectedService.uuid;
-      charUuidInput.value = selectedChar.uuid;
+      writeCharacteristic = found.characteristic;
+      serviceUuidInput.value = found.service.uuid;
+      charUuidInput.value = found.characteristic.uuid;
       await setupNotifications(services);
-      log(`Forbundet til ${device.name || "ukendt enhed"} | service=${selectedService.uuid} | char=${selectedChar.uuid} | props=${characteristicPropertiesSummary(selectedChar)}`, "ok");
+      log(`Forbundet til ${device.name || "ukendt enhed"} | service=${found.service.uuid} | char=${found.characteristic.uuid} | props=${characteristicPropertiesSummary(found.characteristic)}`, "ok");
     }
 
     async function disconnect() {
-      if (device && device.gatt && device.gatt.connected) {
+      if (device?.gatt?.connected) {
         device.gatt.disconnect();
         resetConnectionState({ keepDevice: true });
         log("Disconnected.", "");
-      } else {
-        resetConnectionState({ keepDevice: true });
-        log("Ingen aktiv BLE-forbindelse.", "");
+        return;
       }
+
+      resetConnectionState({ keepDevice: true });
+      log("Ingen aktiv BLE-forbindelse.", "");
     }
 
-    async function sendAsciiCommand(command) {
-      if (!device?.gatt?.connected || !characteristic) {
+    async function sendPayload(rawPayload) {
+      if (!device?.gatt?.connected || !writeCharacteristic) {
         throw new Error("Ikke forbundet. Tryk Connect BLE først.");
       }
-      const normalizedCommand = appendNewlineInput.checked && !command.endsWith("\n") ? `${command}\n` : command;
-      const encoder = new TextEncoder();
-      const payload = encoder.encode(normalizedCommand);
 
-      if (characteristic.properties?.writeWithoutResponse && !characteristic.properties?.write) {
-        await characteristic.writeValueWithoutResponse(payload);
-      } else if (characteristic.properties?.write) {
-        await characteristic.writeValueWithResponse(payload);
+      const payload = normalizePayload(rawPayload);
+      const bytes = new TextEncoder().encode(payload);
+
+      if (writeCharacteristic.properties?.writeWithoutResponse && !writeCharacteristic.properties?.write) {
+        await writeCharacteristic.writeValueWithoutResponse(bytes);
+      } else if (writeCharacteristic.properties?.write) {
+        await writeCharacteristic.writeValueWithResponse(bytes);
       } else {
-        await characteristic.writeValue(payload);
+        await writeCharacteristic.writeValue(bytes);
       }
 
-      log(`Sendte: ${JSON.stringify(normalizedCommand)}`, "ok");
-    }
-
-    function getSelectedProblem() {
-      const problemId = problemSelect.value;
-      return problems.find((p) => p.id === problemId) || null;
-    }
-
-    function moonboardPositionForHold(hold, numRows = 18) {
-      if (typeof hold !== "string") {
-        throw new Error(`Ugyldigt hold-format: ${hold}`);
-      }
-
-      const trimmed = hold.trim().toUpperCase();
-      const match = trimmed.match(/^([A-Z])(\d{1,2})$/);
-      if (!match) {
-        throw new Error(`Ugyldigt hold-format: ${hold}`);
-      }
-
-      const column = match[1].charCodeAt(0) - 65;
-      const row = Number(match[2]);
-      if (column < 0 || column > 10 || row < 1 || row > numRows) {
-        throw new Error(`Hold uden for MoonBoard-grid: ${hold}`);
-      }
-
-      if (column % 2 === 0) {
-        return column * numRows + (row - 1);
-      }
-      return column * numRows + (numRows - row);
-    }
-
-    function getBuilderSetupHolds() {
-      return holdSetupData[builderSetupSelect.value] || {};
-    }
-
-    function sortHolds(holds) {
-      return [...holds].sort((a, b) => moonboardPositionForHold(a) - moonboardPositionForHold(b));
-    }
-
-    function getBuilderSections() {
-      const entries = Object.entries(builderSelection);
-      const startHolds = sortHolds(entries.filter(([, type]) => type === "start").map(([hold]) => hold));
-      const moveHolds = sortHolds(entries.filter(([, type]) => type === "move").map(([hold]) => hold));
-      const topHolds = sortHolds(entries.filter(([, type]) => type === "top").map(([hold]) => hold));
-      return { startHolds, moveHolds, topHolds };
-    }
-
-    function showProblemInBuilder(problem) {
-      if (!problem) {
-        return;
-      }
-
-      const { startHolds, moveHolds, topHolds } = getProblemSections(problem);
-      builderSelection = {};
-
-      for (const hold of moveHolds) {
-        builderSelection[hold] = "move";
-      }
-      for (const hold of startHolds) {
-        builderSelection[hold] = "start";
-      }
-      for (const hold of topHolds) {
-        builderSelection[hold] = "top";
-      }
-
-      if (problem.setup && holdSetupData[problem.setup]) {
-        builderSetupSelect.value = problem.setup;
-      }
-      if (problem.name) {
-        builderNameInput.value = problem.name;
-      }
-      if (problem.grade) {
-        builderGradeInput.value = problem.grade;
-      }
-      if (problem.setter) {
-        builderSetterInput.value = problem.setter;
-      }
-      builderBenchmarkInput.checked = Boolean(problem.isBenchmark);
-
-      renderBuilderBoard();
-      renderBuilderSummary();
-    }
-
-    function renderBuilderSummary() {
-      const { startHolds, moveHolds, topHolds } = getBuilderSections();
-      if (!builderSetupSelect.value) {
-        builderSummaryEl.textContent = "Ingen hold-setup loaded endnu.";
-        return;
-      }
-
-      const holds = [...startHolds, ...moveHolds, ...topHolds];
-      const summaryProblem = {
-        id: "builder-preview",
-        holds,
-        startHolds,
-        moveHolds,
-        topHolds
-      };
-
-      const payload = holds.length ? ledPayloadForProblem(summaryProblem, "SHOW") : "Ingen payload endnu";
-      builderSummaryEl.textContent =
-        `Setup: ${builderSetupSelect.value}\nStart: ${startHolds.join(", ") || "-"}\nMoves: ${moveHolds.join(", ") || "-"}\nTop: ${topHolds.join(", ") || "-"}\nPayload: ${payload}`;
-    }
-
-    function getBuilderPreviewProblem() {
-      const { startHolds, moveHolds, topHolds } = getBuilderSections();
-      const holds = [...startHolds, ...moveHolds, ...topHolds];
-      if (!holds.length) {
-        return null;
-      }
-      return {
-        id: "builder-live-preview",
-        holds,
-        startHolds,
-        moveHolds,
-        topHolds
-      };
-    }
-
-    async function sendBuilderPreview() {
-      if (!builderLivePreviewInput.checked) {
-        return;
-      }
-      if (!device?.gatt?.connected || !characteristic) {
-        return;
-      }
-
-      const previewProblem = getBuilderPreviewProblem();
-      const payload = previewProblem ? ledPayloadForProblem(previewProblem, "SHOW") : TEST_PAYLOADS.off;
-      await sendAsciiCommand(payload);
-    }
-
-    function queueBuilderPreview() {
-      if (!builderLivePreviewInput.checked) {
-        return;
-      }
-      if (builderPreviewTimer) {
-        clearTimeout(builderPreviewTimer);
-      }
-      builderPreviewTimer = setTimeout(async () => {
-        builderPreviewTimer = null;
-        try {
-          await sendBuilderPreview();
-        } catch (err) {
-          log(`Live preview fejl: ${err.message}`, "err");
-        }
-      }, 120);
-    }
-
-    function cycleBuilderHold(hold) {
-      const states = ["move", "start", "top", ""];
-      const current = builderSelection[hold] || "";
-      const next = states[(states.indexOf(current) + 1) % states.length];
-      if (next) {
-        builderSelection[hold] = next;
-      } else {
-        delete builderSelection[hold];
-      }
-      renderBuilderBoard();
-      renderBuilderSummary();
-      queueBuilderPreview();
-    }
-
-    function renderBuilderBoard() {
-      builderBoardEl.innerHTML = "";
-
-      const emptyCorner = document.createElement("div");
-      builderBoardEl.appendChild(emptyCorner);
-      for (const column of BOARD_COLUMNS) {
-        const colLabel = document.createElement("div");
-        colLabel.className = "axis-label";
-        colLabel.textContent = column;
-        builderBoardEl.appendChild(colLabel);
-      }
-
-      for (const row of BOARD_ROWS) {
-        const rowLabel = document.createElement("div");
-        rowLabel.className = "axis-label";
-        rowLabel.textContent = row;
-        builderBoardEl.appendChild(rowLabel);
-
-        for (const column of BOARD_COLUMNS) {
-          const hold = `${column}${row}`;
-          const button = document.createElement("button");
-          button.type = "button";
-          button.textContent = hold;
-          button.className = "hold-btn";
-
-          const state = builderSelection[hold] || "";
-          if (state) {
-            button.classList.add(state);
-          }
-          const holdMeta = getBuilderSetupHolds()[hold];
-          button.title = holdMeta
-            ? `${hold} | ${holdMeta.HoldSet || "ukendt"} | klik for at cykle`
-            : `${hold} | ikke annoteret i HoldSetup.json | klik for at cykle`;
-          button.addEventListener("click", () => cycleBuilderHold(hold));
-
-          builderBoardEl.appendChild(button);
-        }
-      }
-    }
-
-    function resetBuilder() {
-      builderSelection = {};
-      renderBuilderBoard();
-      renderBuilderSummary();
-      queueBuilderPreview();
-    }
-
-    function buildProblemFromBuilder() {
-      const { startHolds, moveHolds, topHolds } = getBuilderSections();
-      const holds = [...startHolds, ...moveHolds, ...topHolds];
-      if (!startHolds.length || !topHolds.length || !holds.length) {
-        throw new Error("Vaelg mindst et startgreb og et topgreb.");
-      }
-
-      return {
-        id: `MB-CUSTOM-${Date.now()}`,
-        name: builderNameInput.value.trim() || `Custom ${new Date().toLocaleTimeString("da-DK")}`,
-        grade: builderGradeInput.value.trim() || "Project",
-        holdCount: holds.length,
-        setter: builderSetterInput.value.trim() || "Mobile Builder",
-        isBenchmark: builderBenchmarkInput.checked,
-        setup: builderSetupSelect.value,
-        startHolds,
-        moveHolds,
-        topHolds,
-        holds
-      };
-    }
-
-    function buildUpdatedProblemFromBuilder(existingProblem) {
-      const problem = buildProblemFromBuilder();
-      return {
-        ...existingProblem,
-        ...problem,
-        id: existingProblem.id
-      };
-    }
-
-    async function copyBuilderPayload() {
-      const payload = ledPayloadForProblem(buildProblemFromBuilder(), "SHOW");
-      await navigator.clipboard.writeText(payload);
-      log(`Builder payload kopieret: ${payload}`, "ok");
-    }
-
-    function downloadSavedProblems() {
-      const blob = new Blob([JSON.stringify(customProblems, null, 2)], { type: "application/json;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `moonboard-custom-problems-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      log(`Downloaded ${customProblems.length} gemte custom problems.`, "ok");
-    }
-
-    async function loadHoldSetup() {
-      const res = await fetch("./HoldSetup.json", { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`Kunne ikke loade HoldSetup.json (${res.status})`);
-      }
-
-      holdSetupData = await res.json();
-      builderSetupSelect.innerHTML = "";
-      const setupNames = Object.keys(holdSetupData);
-      for (const setupName of setupNames) {
-        const option = document.createElement("option");
-        option.value = setupName;
-        option.textContent = setupName;
-        builderSetupSelect.appendChild(option);
-      }
-      if (setupNames.includes("MoonboardMasters2017")) {
-        builderSetupSelect.value = "MoonboardMasters2017";
-      }
-      renderBuilderBoard();
-      renderBuilderSummary();
-    }
-
-    function getProblemSections(problem, mode = "SHOW") {
-      const startHolds = Array.isArray(problem.startHolds) ? problem.startHolds : problem.holds.slice(0, Math.min(2, problem.holds.length));
-      const topHolds = Array.isArray(problem.topHolds) ? problem.topHolds : problem.holds.slice(-1);
-      const moveHolds = Array.isArray(problem.moveHolds)
-        ? problem.moveHolds
-        : problem.holds.slice(startHolds.length, Math.max(startHolds.length, problem.holds.length - topHolds.length));
-
-      if (mode === "TOP") {
-        return { startHolds: [], moveHolds: [], topHolds };
-      }
-
-      return { startHolds, moveHolds, topHolds };
-    }
-
-    function ledPayloadForProblem(problem, mode = "SHOW") {
-      const { startHolds, moveHolds, topHolds } = getProblemSections(problem, mode);
-      const segments = [
-        ...startHolds.map((hold) => `S${moonboardPositionForHold(hold)}`),
-        ...moveHolds.map((hold) => `P${moonboardPositionForHold(hold)}`),
-        ...topHolds.map((hold) => `E${moonboardPositionForHold(hold)}`)
-      ];
-
-      if (!segments.length) {
-        throw new Error(`Problem ${problem.id} har ingen holds at sende.`);
-      }
-
-      return `l#${segments.join(",")}#`;
-    }
-
-    function renderProblemMeta() {
-      const p = getSelectedProblem();
-      if (!p) {
-        problemMeta.textContent = "Vælg et problem for detaljer.";
-        return;
-      }
-      const { startHolds, moveHolds, topHolds } = getProblemSections(p);
-      problemMeta.textContent =
-        `${p.name} | ${p.grade} | start: ${startHolds.length} | moves: ${moveHolds.length} | top: ${topHolds.length} | setter: ${p.setter} | benchmark: ${p.isBenchmark ? "ja" : "nej"}${p.setup ? ` | setup: ${p.setup}` : ""}`;
-    }
-
-    async function loadProblems() {
-      const res = await fetch("./problems.sample.json", { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`Kunne ikke loade problems.sample.json (${res.status})`);
-      }
-      const data = await res.json();
-      if (!Array.isArray(data)) {
-        throw new Error("problems.sample.json skal være en array.");
-      }
-      sampleProblems = data;
-      customProblems = getSavedCustomProblems();
-      syncProblemList();
-      log(`Loaded ${sampleProblems.length} lokale problemer og ${customProblems.length} custom problems.`, "ok");
+      log(`Sendte: ${JSON.stringify(payload)}`, "ok");
     }
 
     connectBtn.addEventListener("click", async () => {
       try {
         await connect();
-      } catch (err) {
-        log(`Connect fejl: ${err.message}`, "err");
+      } catch (error) {
+        log(`Connect fejl: ${error.message}`, "err");
       }
     });
 
     disconnectBtn.addEventListener("click", async () => {
       try {
         await disconnect();
-      } catch (err) {
-        log(`Disconnect fejl: ${err.message}`, "err");
+      } catch (error) {
+        log(`Disconnect fejl: ${error.message}`, "err");
       }
     });
 
-    onBtn.addEventListener("click", async () => {
+    sendSelectedBtn.addEventListener("click", async () => {
       try {
-        await sendAsciiCommand(TEST_PAYLOADS.on);
-      } catch (err) {
-        log(`Send fejl: ${err.message}`, "err");
-      }
-    });
-
-    offBtn.addEventListener("click", async () => {
-      try {
-        await sendAsciiCommand(TEST_PAYLOADS.off);
-      } catch (err) {
-        log(`Send fejl: ${err.message}`, "err");
-      }
-    });
-
-    pulseBtn.addEventListener("click", async () => {
-      try {
-        await sendAsciiCommand(TEST_PAYLOADS.pulse);
-      } catch (err) {
-        log(`Send fejl: ${err.message}`, "err");
-      }
-    });
-
-    sendCustomBtn.addEventListener("click", async () => {
-      try {
-        const cmd = customCommandInput.value.trim();
-        if (!cmd) {
-          throw new Error("Skriv en custom command først.");
+        const payload = getSelectedPayloadLine();
+        if (!payload) {
+          throw new Error("Vælg eller marker en payload-linje først.");
         }
-        await sendAsciiCommand(cmd);
-      } catch (err) {
-        log(`Send fejl: ${err.message}`, "err");
+        await sendPayload(payload);
+      } catch (error) {
+        log(`Send fejl: ${error.message}`, "err");
       }
     });
 
-    loadProblemsBtn.addEventListener("click", async () => {
+    sendAllBtn.addEventListener("click", async () => {
       try {
-        await loadProblems();
-      } catch (err) {
-        log(`Load fejl: ${err.message}`, "err");
-      }
-    });
-
-    sendProblemBtn.addEventListener("click", async () => {
-      try {
-        const p = getSelectedProblem();
-        if (!p) {
-          throw new Error("Vælg et problem først.");
+        const payloads = getAllPayloadLines();
+        if (!payloads.length) {
+          throw new Error("Ingen payload-linjer at sende.");
         }
-        await sendAsciiCommand(ledPayloadForProblem(p, "SHOW"));
-      } catch (err) {
-        log(`Send fejl: ${err.message}`, "err");
-      }
-    });
-
-    topProblemBtn.addEventListener("click", async () => {
-      try {
-        const p = getSelectedProblem();
-        if (!p) {
-          throw new Error("Vælg et problem først.");
+        for (const payload of payloads) {
+          await sendPayload(payload);
         }
-        await sendAsciiCommand(ledPayloadForProblem(p, "TOP"));
-      } catch (err) {
-        log(`Top fejl: ${err.message}`, "err");
+      } catch (error) {
+        log(`Send alle fejl: ${error.message}`, "err");
       }
     });
 
-    copyPayloadBtn.addEventListener("click", async () => {
-      try {
-        const p = getSelectedProblem();
-        if (!p) {
-          throw new Error("Vælg et problem først.");
-        }
-        const payload = ledPayloadForProblem(p, "TOP");
-        await navigator.clipboard.writeText(payload);
-        log(`Payload kopieret: ${payload}`, "ok");
-      } catch (err) {
-        log(`Copy fejl: ${err.message}`, "err");
-      }
-    });
-
-    problemSelect.addEventListener("change", renderProblemMeta);
-    problemSelect.addEventListener("change", () => {
-      const p = getSelectedProblem();
-      if (p) {
-        showProblemInBuilder(p);
-      }
-    });
-    builderSetupSelect.addEventListener("change", () => {
-      resetBuilder();
-    });
-    builderLivePreviewInput.addEventListener("change", async () => {
-      try {
-        await sendBuilderPreview();
-        log(
-          builderLivePreviewInput.checked
-            ? "Live preview aktiveret. Builder sender nu til boardet ved hvert klik."
-            : "Live preview deaktiveret.",
-          ""
-        );
-      } catch (err) {
-        log(`Live preview fejl: ${err.message}`, "err");
-      }
+    clearPayloadBtn.addEventListener("click", () => {
+      resetPayloads();
+      log("Payload-felt nulstillet.", "");
     });
 
     clearLogBtn.addEventListener("click", () => {
       logEl.textContent = "";
       localStorage.removeItem(LOG_STORAGE_KEY);
-      statusEl.textContent = "Log ryddet.";
-      statusEl.className = "";
+      setStatus("Log ryddet.");
     });
 
     copyLogBtn.addEventListener("click", async () => {
       try {
         await copyLogs();
-      } catch (err) {
-        log(`Copy log fejl: ${err.message}`, "err");
+      } catch (error) {
+        log(`Copy log fejl: ${error.message}`, "err");
       }
     });
 
     downloadLogBtn.addEventListener("click", () => {
       try {
         downloadLogs();
-      } catch (err) {
-        log(`Download log fejl: ${err.message}`, "err");
+      } catch (error) {
+        log(`Download log fejl: ${error.message}`, "err");
       }
     });
 
-    builderClearBtn.addEventListener("click", () => {
-      resetBuilder();
-      log("Problem builder ryddet.", "");
-    });
-
-    builderSaveBtn.addEventListener("click", () => {
-      try {
-        const problem = buildProblemFromBuilder();
-        customProblems.push(problem);
-        saveCustomProblems();
-        syncProblemList();
-        problemSelect.value = problem.id;
-        renderProblemMeta();
-        log(`Custom problem gemt: ${problem.name}`, "ok");
-      } catch (err) {
-        log(`Save builder fejl: ${err.message}`, "err");
-      }
-    });
-
-    builderUpdateBtn.addEventListener("click", () => {
-      try {
-        const selectedProblem = getSelectedProblem();
-        if (!selectedProblem) {
-          throw new Error("Vaelg et problem i listen for at kunne overskrive det.");
+    for (const button of quickPayloadButtons) {
+      button.addEventListener("click", async () => {
+        try {
+          await sendPayload(button.dataset.payload || "");
+        } catch (error) {
+          log(`Quick payload fejl: ${error.message}`, "err");
         }
-
-        const customIndex = customProblems.findIndex((problem) => problem.id === selectedProblem.id);
-        if (customIndex === -1) {
-          throw new Error("Kun custom problems kan overskrives. Vaelg et gemt custom problem eller gem som nyt.");
-        }
-
-        const updatedProblem = buildUpdatedProblemFromBuilder(selectedProblem);
-        customProblems[customIndex] = updatedProblem;
-        saveCustomProblems();
-        syncProblemList();
-        problemSelect.value = updatedProblem.id;
-        renderProblemMeta();
-        showProblemInBuilder(updatedProblem);
-        log(`Custom problem opdateret: ${updatedProblem.name}`, "ok");
-      } catch (err) {
-        log(`Update builder fejl: ${err.message}`, "err");
-      }
-    });
-
-    builderCopyPayloadBtn.addEventListener("click", async () => {
-      try {
-        await copyBuilderPayload();
-      } catch (err) {
-        log(`Copy builder payload fejl: ${err.message}`, "err");
-      }
-    });
-
-    builderDownloadBtn.addEventListener("click", () => {
-      try {
-        downloadSavedProblems();
-      } catch (err) {
-        log(`Download builder fejl: ${err.message}`, "err");
-      }
-    });
-
-    builderResetSavedBtn.addEventListener("click", () => {
-      customProblems = [];
-      saveCustomProblems();
-      syncProblemList();
-      log("Alle gemte custom problems er ryddet.", "");
-    });
-
-    loadPersistedLogs();
-    fitLogHeight();
-    window.addEventListener("resize", fitLogHeight);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", fitLogHeight);
+      });
     }
 
-    loadProblems().catch((err) => {
-      log(`Auto-load fejl: ${err.message}`, "err");
-    });
-    loadHoldSetup().catch((err) => {
-      builderSummaryEl.textContent = `Kunne ikke loade hold-layout: ${err.message}`;
-      log(`HoldSetup fejl: ${err.message}`, "err");
-    });
+    resetPayloads();
+    loadPersistedLogs();
   </script>
 </body>
 </html>
